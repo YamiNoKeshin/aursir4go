@@ -1,0 +1,16 @@
+package AurSir4Go
+
+const (
+	DOCK    		= iota
+	DOCKED 	= iota
+	LEAVE    		= iota
+	REQUEST  		= iota
+	RESULT  		= iota
+	ADD_EXPORT		= iota
+	EXPORT_ADDED	= iota
+	ADD_IMPORT 		= iota
+	IMPORT_ADDED	= iota
+	IMPORT_UPDATED	= iota
+	LISTEN = iota
+	STOP_LISTEN =iota
+)
