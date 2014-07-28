@@ -24,10 +24,17 @@ type AurSirAddImportMessage struct {
 	Tags []string
 }
 
+//An AurSirUpdateImportMessage contains the import id and the new tag set
+type AurSirUpdateImportMessage struct {
+	ImportId string
+	Tags []string
+}
 //An AurSirImportAddedMessage contains the import id and a bool flag to indicate if an exporter is connected
 type AurSirImportAddedMessage struct {
 	ImportId string
 	Exported bool
+	AppKeyName string
+	Tags	[]string
 }
 //An AurSirImportAddedMessage contains the import id and a bool flag to indicate if an exporter is connected
 type AurSirImportUpdatedMessage struct {
@@ -44,6 +51,12 @@ type AurSirAddExportMessage struct {
 //An AurSirExportAddedMessage contains the export id
 type AurSirExportAddedMessage struct {
 	ExportId string
+}
+
+//An AurSirUpdateExportMessage contains the export id and the new tag set
+type AurSirUpdateExportMessage struct {
+	ExportId string
+	Tags []string
 }
 
 //An AurSirListenMessage contains the import id and the function name.
@@ -65,7 +78,8 @@ type AurSirRequest struct {
 	CallType int64
 	Tags []string
 	Uuid string
-	Codec string
+	ImportId string
+Codec string
 	Request []byte
 }
 
@@ -75,6 +89,8 @@ type AurSirResult struct {
 	CallType int64
 	Tags []string
 	Uuid string
+	ImportId string
+	ExportId string
 	Codec string
 	Result []byte
 }

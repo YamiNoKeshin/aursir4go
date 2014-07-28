@@ -1,16 +1,15 @@
 package AurSir4Go
 
 import (
+	uuid "github.com/nu7hatch/gouuid"
 	"github.com/pebbe/zmq4"
 	"log"
-	"strconv"
 	"net"
-	uuid "github.com/nu7hatch/gouuid"
+	"strconv"
 	"time"
 )
 
 type AurSirInterface struct {
-
 	AppName string //Name of the application
 
 	UUID string //the applications uuid
@@ -23,13 +22,13 @@ type AurSirInterface struct {
 
 	connected *bool // a connected flag
 
-	exports *map[string] *ExportedAppKey
+	exports *map[string]*ExportedAppKey
 
-	exportsSem chan struct {}
+	exportsSem chan struct{}
 
-	imports *map[string] *ImportedAppKey
+	imports *map[string]*ImportedAppKey
 
-    resultChans *map[string] chan Result
+	resultChans *map[string]chan Result
 }
 
 //NewInterface creates a new AurSir interface and returns a pointer to it
@@ -45,8 +44,8 @@ func NewInterface(AppName string) *AurSirInterface {
 	iface.UUID = generateUuid()
 
 	//initalize channels for communication with the backend
-	iface.in = make(chan AurSirMessage,10)
-	iface.out = make(chan AurSirMessage,10)
+	iface.in = make(chan AurSirMessage, 10)
+	iface.out = make(chan AurSirMessage, 10)
 
 	//initialize the quit flag
 	q := false
@@ -59,11 +58,10 @@ func NewInterface(AppName string) *AurSirInterface {
 	conn := false
 	iface.connected = &conn
 
-
 	exports := map[string]*ExportedAppKey{}
 	iface.exports = &exports
-	iface.exportsSem = make(chan struct {},1)
-	iface.exportsSem <- struct {}{}
+	iface.exportsSem = make(chan struct{}, 1)
+	iface.exportsSem <- struct{}{}
 
 	imports := map[string]*ImportedAppKey{}
 	iface.imports = &imports
@@ -80,31 +78,33 @@ func NewInterface(AppName string) *AurSirInterface {
 }
 
 //Close shuts down the AurSir interface
-func (iface *AurSirInterface) Close(){
+func (iface *AurSirInterface) Close() {
 	log.Println("Closing out channel")
 	close(iface.out)
 	log.Println("out channel closed")
 
-	for !*iface.quit{
-		time.Sleep(10*time.Millisecond)
+	for !*iface.quit {
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
-func (iface *AurSirInterface) AddExport(key AppKey,tags[]string) *ExportedAppKey{
-	<- iface.exportsSem
+func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppKey {
+	<-iface.exportsSem
 	var ak ExportedAppKey
 	ak.iface = iface
 	ak.key = key
 	ak.tags = tags
 
-	expReq := AurSirAddExportMessage{key,tags}
+	expReq := AurSirAddExportMessage{key, tags}
 
 	iface.out <- expReq
 
-	expRep := <- iface.in
+	expRep := <-iface.in
 
-	expMsg , ok := expRep.(AurSirExportAddedMessage)
-	if !ok {panic("insane runtime!!!")}
+	expMsg, ok := expRep.(AurSirExportAddedMessage)
+	if !ok {
+		panic("insane runtime!!!")
+	}
 
 	ak.exportId = expMsg.ExportId
 
@@ -113,11 +113,11 @@ func (iface *AurSirInterface) AddExport(key AppKey,tags[]string) *ExportedAppKey
 	(*iface.exports)[expMsg.ExportId] = &ak
 	log.Println(*iface.exports)
 
-	iface.exportsSem <-struct{}{}
+	iface.exportsSem <- struct{}{}
 	return &ak
 }
 
-func (iface *AurSirInterface) AddImport(key AppKey,tags[]string) *ImportedAppKey{
+func (iface *AurSirInterface) AddImport(key AppKey, tags []string) *ImportedAppKey {
 	var ak ImportedAppKey
 	ak.iface = iface
 	ak.key = key
@@ -125,14 +125,16 @@ func (iface *AurSirInterface) AddImport(key AppKey,tags[]string) *ImportedAppKey
 
 	ak.listenChan = make(chan Result)
 
-	impReq := AurSirAddImportMessage{key,tags}
+	impReq := AurSirAddImportMessage{key, tags}
 
 	iface.out <- impReq
 
-	impRep := <- iface.in
+	impRep := <-iface.in
 
-	impMsg , ok := impRep.(AurSirImportAddedMessage)
-	if !ok {panic("insane runtime!!!")}
+	impMsg, ok := impRep.(AurSirImportAddedMessage)
+	if !ok {
+		panic("insane runtime!!!")
+	}
 
 	ak.importId = impMsg.ImportId
 	ak.Connected = impMsg.Exported
@@ -142,17 +144,16 @@ func (iface *AurSirInterface) AddImport(key AppKey,tags[]string) *ImportedAppKey
 
 //registerResultChan stores a request uuid for ONE2.. or appkey.functioname@tag for MANY2... calls together with a channel so when Results comes in later, it can be routed to the
 // appropriate channel.
-func (iface *AurSirInterface) registerResultChan(resUuid string, rc chan Result){
+func (iface *AurSirInterface) registerResultChan(resUuid string, rc chan Result) {
 	(*iface.resultChans)[resUuid] = rc
 }
 
-
 //connect initializes the connection to the runtime by sending a DOCK message
-func (iface *AurSirInterface) connect(){
+func (iface *AurSirInterface) connect() {
 	iface.out <- AurSirDockMessage{iface.AppName}
 }
 
-func (iface *AurSirInterface) backend(){
+func (iface *AurSirInterface) backend() {
 
 	go iface.listener()
 
@@ -166,7 +167,7 @@ func (iface *AurSirInterface) sender() {
 
 	skt, err := zmq4.NewSocket(zmq4.DEALER)
 
-	if err != nil{
+	if err != nil {
 		panic("Could not open ZeroMQ socket")
 	}
 
@@ -182,21 +183,21 @@ func (iface *AurSirInterface) sender() {
 
 		var appmsg AppMessage
 
-		appmsg.Encode(msg,"JSON")
-		log.Println("Sending",appmsg)
+		appmsg.Encode(msg, "JSON")
+		log.Println("Sending", appmsg)
 
 		if appmsg.MsgType == DOCK {
-			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType,10),appmsg.MsgCodec,string(appmsg.Msg),strconv.FormatInt(iface.port,10)},0)
+			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(*appmsg.Msg), strconv.FormatInt(iface.port, 10)}, 0)
 		} else {
-		skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType,10),appmsg.MsgCodec,string(appmsg.Msg)},0)
+			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(*appmsg.Msg)}, 0)
 		}
 	}
 	log.Println("Sending LEAVE")
 	var lmsg AppMessage
 
-	lmsg.Encode(AurSirLeaveMessage{},"JSON")
+	lmsg.Encode(AurSirLeaveMessage{}, "JSON")
 
-	skt.SendMessage([]string{strconv.FormatInt(lmsg.MsgType,10),lmsg.MsgCodec,string(lmsg.Msg)},0)
+	skt.SendMessage([]string{strconv.FormatInt(lmsg.MsgType, 10), lmsg.MsgCodec, string(*lmsg.Msg)}, 0)
 	*iface.quit = true
 }
 
@@ -206,13 +207,13 @@ func (iface *AurSirInterface) listener() {
 
 	skt, err := zmq4.NewSocket(zmq4.ROUTER)
 
-	if err != nil{
+	if err != nil {
 		panic("Could not open ZeroMQ socket")
 	}
 
 	defer skt.Close()
 
-	skt.Bind("tcp://*:"+strconv.FormatInt(iface.port,10))
+	skt.Bind("tcp://*:" + strconv.FormatInt(iface.port, 10))
 
 	log.Println("Incoming ZeroMQ Socket open")
 
@@ -233,24 +234,25 @@ func (iface *AurSirInterface) listener() {
 
 }
 
-func (iface *AurSirInterface) processMsg(message []string){
+func (iface *AurSirInterface) processMsg(message []string) {
 
-	msgType, err := strconv.ParseInt(message[1],10,64)
+	msgType, err := strconv.ParseInt(message[1], 10, 64)
 
-	if err != nil{
+	if err != nil {
 		return
 	}
 
-	switch msgType{
+	switch msgType {
 
 	case DOCKED:
 		*iface.connected = true
 
 	case IMPORT_UPDATED:
-		msg := AppMessage{msgType,message[2],[]byte(message[3])}
+		encmsg := []byte(message[3])
+		msg := AppMessage{msgType, message[2], &encmsg}
 		asmsg, err := msg.Decode()
 		if err == nil {
-			iumsg,ok := asmsg.(AurSirImportUpdatedMessage)
+			iumsg, ok := asmsg.(AurSirImportUpdatedMessage)
 			if ok {
 				(*iface.imports)[iumsg.ImportId].Connected = iumsg.Exported
 			}
@@ -258,50 +260,51 @@ func (iface *AurSirInterface) processMsg(message []string){
 		}
 
 	case REQUEST:
-		msg := AppMessage{msgType,message[2],[]byte(message[3])}
+		encmsg := []byte(message[3])
+		msg := AppMessage{msgType, message[2],&encmsg}
 		asmsg, err := msg.Decode()
 
 		if err == nil {
-			reqmsg,ok := asmsg.(AurSirRequest)
+			reqmsg, ok := asmsg.(AurSirRequest)
 
 			if ok {
 				//this could and should be done more elgently
-				<- iface.exportsSem
-				for _,exp := range *iface.exports {
+				<-iface.exportsSem
+				for _, exp := range *iface.exports {
 					log.Println(exp.key.ApplicationKeyName)
-					if exp.key.ApplicationKeyName == reqmsg.AppKeyName{
+					if exp.key.ApplicationKeyName == reqmsg.AppKeyName {
 
-						exp.Request <- Request{reqmsg.Request,reqmsg.FunctionName,reqmsg.Uuid,reqmsg.CallType}
+						exp.Request <- Request{reqmsg.Request, reqmsg.FunctionName, reqmsg.Uuid, reqmsg.CallType, reqmsg.ImportId}
 
 					}
 				}
-				iface.exportsSem <-struct{}{}
+				iface.exportsSem <- struct{}{}
 			}
 
 		}
-case RESULT:
-		msg := AppMessage{msgType,message[2],[]byte(message[3])}
+	case RESULT:
+		encmsg := []byte(message[3])
+		msg := AppMessage{msgType, message[2], &encmsg}
 		asmsg, err := msg.Decode()
 		if err == nil {
-			resmsg,ok := asmsg.(AurSirResult)
+			resmsg, ok := asmsg.(AurSirResult)
 
 			if ok {
 
 				var resId string
 
-				if resmsg.CallType == ONE2MANY  || resmsg.CallType == ONE2ONE {
+				if resmsg.CallType == ONE2MANY || resmsg.CallType == ONE2ONE {
 					resId = resmsg.Uuid
-				}else{
-					resId = resmsg.AppKeyName+"."+resmsg.FunctionName
+				} else {
+					resId = resmsg.AppKeyName + "." + resmsg.FunctionName
 				}
-
 
 				rc, f := (*iface.resultChans)[resId]
 
 				log.Println(resId)
 				//log.Println(rc)
 				if f {
-					rc <- Result{resmsg.Result,resmsg.FunctionName,resmsg.Uuid,resmsg.CallType}
+					rc <- Result{resmsg.Result, resmsg.FunctionName, resmsg.Uuid, resmsg.CallType}
 				}
 
 			}
@@ -309,7 +312,8 @@ case RESULT:
 		}
 
 	default:
-		msg := AppMessage{msgType,message[2],[]byte(message[3])}
+		encmsg := []byte(message[3])
+		msg := AppMessage{msgType, message[2], &encmsg}
 		asmsg, err := msg.Decode()
 
 		if err == nil {
@@ -318,15 +322,14 @@ case RESULT:
 	}
 }
 
-
-func (iface *AurSirInterface) Connected() bool{
+func (iface *AurSirInterface) Connected() bool {
 	con := *iface.connected
 	return con
 }
 
-func getRandomPort()  int64{
+func getRandomPort() int64 {
 	l, err := net.Listen("tcp", "127.0.0.1:0") // listen on localhost
-	if err!=nil{
+	if err != nil {
 		panic("Could not find a free port")
 	}
 	defer l.Close()
@@ -341,7 +344,6 @@ func generateUuid() string {
 	}
 	return Uuid.String()
 }
-
 
 /*
 
@@ -362,7 +364,6 @@ func (r AurSirRequest) FunctionName() string {
 }
 */
 
-
 /*
 func (r AurSirResult) ApplicationKeyName() string {
 	var AppKey struct {
@@ -380,5 +381,3 @@ func (r AurSirResult) FunctionName() string {
 	return Fun.Function
 }
 */
-
-

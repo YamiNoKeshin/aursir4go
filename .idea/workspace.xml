@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9e3a8d29-2e91-480f-a8fa-0952c9a45b54" name="Default" comment="" />
+    <list default="true" id="9e3a8d29-2e91-480f-a8fa-0952c9a45b54" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Example/ExampleExporter.go" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ExportedAppKey.go" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/HelloAursirAppKey.go" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ImportedAppKey.go" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\.name" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\compiler.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\copyright\profiles_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\scopes\scope_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\uiDesigner.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\vcs.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\.idea\workspace.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\AurSir4Go.iml" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\libgcc_s_sjlj-1.dll" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\libstdc++-6.dll" afterPath="" />
+      <change type="DELETED" beforePath="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\libzmq.dll" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AppKey.go" afterPath="$PROJECT_DIR$/AppKey.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AppMessages.go" afterPath="$PROJECT_DIR$/AppMessages.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AurSir4Go.go" afterPath="$PROJECT_DIR$/AurSir4Go.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AurSir4Go_test.go" afterPath="$PROJECT_DIR$/AurSir4Go_test.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AurSirCommands.go" afterPath="$PROJECT_DIR$/AurSirCommands.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AurSirMessages.go" afterPath="$PROJECT_DIR$/AurSirMessages.go" />
+    </list>
     <ignored path="AurSir4Go.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -62,14 +88,34 @@
     <favorites_list name="AurSir4Go" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
+    <splitter split-orientation="horizontal" split-proportion="0.41507024">
       <split-first>
         <leaf>
-          <file leaf-file-name="AppKey.go" pinned="false" current="true" current-in-tab="true">
+          <file leaf-file-name="AppKey.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AppKey.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-2.464455" vertical-offset="1798" max-vertical-offset="2431">
-                  <caret line="14" column="1" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1037">
+                  <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ImportedAppKey.go" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/ImportedAppKey.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="633" max-vertical-offset="1309">
+                  <caret line="69" column="16" selection-start-line="69" selection-start-column="16" selection-end-line="69" selection-end-column="16" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ExportedAppKey.go" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/ExportedAppKey.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="42" max-vertical-offset="731">
+                  <caret line="36" column="1" selection-start-line="36" selection-start-column="1" selection-end-line="36" selection-end-column="1" />
                   <folding />
                 </state>
               </provider>
@@ -78,8 +124,8 @@
           <file leaf-file-name="AurSirCommands.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AurSirCommands.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="374">
-                  <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="408">
+                  <caret line="12" column="6" selection-start-line="12" selection-start-column="6" selection-end-line="12" selection-end-column="6" />
                   <folding />
                 </state>
               </provider>
@@ -88,8 +134,8 @@
           <file leaf-file-name="AurSir4Go.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AurSir4Go.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-13.392858" vertical-offset="2617" max-vertical-offset="6630">
-                  <caret line="176" column="37" selection-start-line="176" selection-start-column="17" selection-end-line="176" selection-end-column="37" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="4127" max-vertical-offset="6613">
+                  <caret line="251" column="0" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -98,18 +144,28 @@
           <file leaf-file-name="AppMessages.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AppMessages.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="1856" max-vertical-offset="2720">
-                  <caret line="47" column="13" selection-start-line="47" selection-start-column="13" selection-end-line="47" selection-end-column="13" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="603" max-vertical-offset="2975">
+                  <caret line="83" column="39" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="AurSir4Go_test.go" pinned="false" current="false" current-in-tab="false">
+          <file leaf-file-name="AurSir4Go_test.go" pinned="false" current="true" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/AurSir4Go_test.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3230">
-                  <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+                <state vertical-scroll-proportion="0.31340873" vertical-offset="2475" max-vertical-offset="3553">
+                  <caret line="157" column="5" selection-start-line="157" selection-start-column="5" selection-end-line="157" selection-end-column="5" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="HelloAursirAppKey.go" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/HelloAursirAppKey.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="493">
+                  <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
                   <folding />
                 </state>
               </provider>
@@ -122,18 +178,28 @@
           <file leaf-file-name="AurSir4Go.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AurSir4Go.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-3.6785715" vertical-offset="4470" max-vertical-offset="6630">
-                  <caret line="269" column="0" selection-start-line="269" selection-start-column="0" selection-end-line="269" selection-end-column="0" />
+                <state vertical-scroll-proportion="-7.785714" vertical-offset="4797" max-vertical-offset="6613">
+                  <caret line="295" column="41" selection-start-line="295" selection-start-column="41" selection-end-line="295" selection-end-column="41" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="AurSirMessages.go" pinned="false" current="false" current-in-tab="true">
+          <file leaf-file-name="AurSirMessages.go" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/AurSirMessages.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.1491228" vertical-offset="0" max-vertical-offset="1581">
-                  <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="1853">
+                  <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ExampleExporter.go" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/Example/ExampleExporter.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.38202247" vertical-offset="0" max-vertical-offset="712">
+                  <caret line="16" column="46" selection-start-line="16" selection-start-column="38" selection-end-line="16" selection-end-column="46" />
                   <folding />
                 </state>
               </provider>
@@ -148,25 +214,33 @@
       <setting name="OPEN_NEW_TAB" value="false" />
     </FindUsagesManager>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
+        <option value="$PROJECT_DIR$/ExampleExporter.go" />
+        <option value="$PROJECT_DIR$/HelloAursirAppKey.go" />
+        <option value="$PROJECT_DIR$/Example/ExampleExporter.go" />
+        <option value="$PROJECT_DIR$/AurSirMessages.go" />
+        <option value="$PROJECT_DIR$/ImportedAppKey.go" />
+        <option value="$PROJECT_DIR$/AppKey.go" />
         <option value="$PROJECT_DIR$/AurSirCommands.go" />
         <option value="$PROJECT_DIR$/AppMessages.go" />
-        <option value="$PROJECT_DIR$/AurSirMessages.go" />
-        <option value="$PROJECT_DIR$/AppKey.go" />
+        <option value="$PROJECT_DIR$/ExportedAppKey.go" />
         <option value="$PROJECT_DIR$/AurSir4Go.go" />
         <option value="$PROJECT_DIR$/AurSir4Go_test.go" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1455" />
-    <option name="y" value="135" />
-    <option name="width" value="960" />
-    <option name="height" value="1081" />
+    <option name="x" value="-1928" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1096" />
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
@@ -210,6 +284,20 @@
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="AurSir4Go" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="AurSir4Go" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Example" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
@@ -225,10 +313,21 @@
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="restartRequiresConfirmation" value="true" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\Example" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go" />
+      <recent name="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go\Example" />
     </key>
   </component>
   <component name="RunManager" selected="Go Test.Unnamed">
@@ -398,6 +497,24 @@
       <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
       <method />
     </configuration>
+    <configuration default="false" name="ExampleExporter.go" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <option name="name" value="ExampleExporter.go" />
+      <option name="saveOutputToFile" value="false" />
+      <option name="showConsoleOnStdErr" value="false" />
+      <option name="showConsoleOnStdOut" value="false" />
+      <option name="scriptName" value="$PROJECT_DIR$/Example/ExampleExporter.go" />
+      <option name="scriptArguments" value="" />
+      <option name="builderArguments" value="" />
+      <option name="goBuildBeforeRun" value="false" />
+      <option name="goOutputDir" value="" />
+      <option name="workingDir" value="C:\GoProgramming\src\github.com\joernweissenborn\AurSir4Go/Example" />
+      <option name="envVars" value="" />
+      <option name="goVetEnabled" value="false" />
+      <module name="AurSir4Go" />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
     <configuration default="false" name="Unnamed" type="GoTestConfiguration" factoryName="Go Test">
       <option name="name" value="Unnamed" />
       <option name="saveOutputToFile" value="false" />
@@ -421,8 +538,9 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Go Test.Unnamed" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Go Application.ExampleExporter.go" />
+      <item index="1" class="java.lang.String" itemvalue="Go Test.Unnamed" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -439,8 +557,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1455" y="135" width="960" height="1081" extended-state="0" />
-    <editor active="false" />
+    <frame x="-1928" y="-8" width="1936" height="1096" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -457,8 +575,8 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1652452" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21536796" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1652452" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21192758" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -534,54 +652,173 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AurSir4Go.go">
+    <entry file="file://$PROJECT_DIR$/HelloAursirAppKey.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-13.392858" vertical-offset="2617" max-vertical-offset="6630">
-          <caret line="176" column="37" selection-start-line="176" selection-start-column="17" selection-end-line="176" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AurSirCommands.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="374">
-          <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AurSir4Go_test.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3230">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AurSirMessages.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1491228" vertical-offset="0" max-vertical-offset="1581">
-          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AppMessages.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2720">
-          <caret line="47" column="13" selection-start-line="47" selection-start-column="13" selection-end-line="47" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="493">
+          <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AppKey.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.464455" vertical-offset="1798" max-vertical-offset="2431">
-          <caret line="14" column="1" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1037">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/AurSirMessages.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="1853">
+          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AppMessages.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="603" max-vertical-offset="2975">
+          <caret line="83" column="39" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Example/ExampleExporter.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.38202247" vertical-offset="0" max-vertical-offset="712">
+          <caret line="16" column="46" selection-start-line="16" selection-start-column="38" selection-end-line="16" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AurSirCommands.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="408">
+          <caret line="12" column="6" selection-start-line="12" selection-start-column="6" selection-end-line="12" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ImportedAppKey.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="633" max-vertical-offset="1309">
+          <caret line="69" column="16" selection-start-line="69" selection-start-column="16" selection-end-line="69" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExportedAppKey.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="42" max-vertical-offset="731">
+          <caret line="36" column="1" selection-start-line="36" selection-start-column="1" selection-end-line="36" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AurSir4Go.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4127" max-vertical-offset="6613">
+          <caret line="251" column="0" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AurSir4Go_test.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.31340873" vertical-offset="2475" max-vertical-offset="3553">
+          <caret line="157" column="5" selection-start-line="157" selection-start-column="5" selection-end-line="157" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.7</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>AurSir4Go</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.7</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>
 

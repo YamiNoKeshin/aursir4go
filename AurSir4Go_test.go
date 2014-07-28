@@ -5,19 +5,7 @@ import (
 	"time"
 	"log"
 )
-var testkey = AppKey{
-	"org.aursir.helloaursir",
-	[]Function{
-		Function{
-			"SayHello",
-			[]Data{
-				Data{
-					"Greeting",
-					1}},
-			[]Data{
-				Data{
-					"Answer",
-					1}}}}}
+
 func TestInitCloseIface(t *testing.T){
 	iface:=NewInterface("test")
 	defer iface.Close()
@@ -68,18 +56,18 @@ func TestFunCall121(T *testing.T){
 	defer exporter.Close()
 
 
-	res,_ :=	imp.CallFunction(testkey.Functions[0].Name,sayHelloReq{"AHOI"},ONE2ONE)
+	res,_ :=	imp.CallFunction(Testkey.Functions[0].Name,SayHelloReq{"AHOI"},ONE2ONE)
 	req := <-exp.Request
-    var sayhelloreq sayHelloReq
-	req.Decode(&sayhelloreq)
-	if sayhelloreq.Greeting != "AHOI"{
+    var SayHelloReq SayHelloReq
+	req.Decode(&SayHelloReq)
+	if SayHelloReq.Greeting != "AHOI"{
 		T.Error("got wrong request parameter")
 	}
-	err := exp.Reply(&req,sayHelloRes{"MOINSEN"})
+	err := exp.Reply(&req,SayHelloRes{"MOINSEN"})
 	if err != nil {
 		T.Error(err)
 	}
-	var result sayHelloRes
+	var result SayHelloRes
 	(<-res).Decode(&result)
 	log.Println(result)
 	if result.Answer != "MOINSEN"{
@@ -98,24 +86,24 @@ func TestFunCallN21(T *testing.T){
 	defer exporter.Close()
 
 
-	imp2.CallFunction(testkey.Functions[0].Name,sayHelloReq{"AHOI"},MANY2ONE)
+	imp2.CallFunction(Testkey.Functions[0].Name,SayHelloReq{"AHOI"},MANY2ONE)
 	req := <-exp.Request
-    var sayhelloreq sayHelloReq
-	req.Decode(&sayhelloreq)
-	if sayhelloreq.Greeting != "AHOI"{
+    var SayHelloReq SayHelloReq
+	req.Decode(&SayHelloReq)
+	if SayHelloReq.Greeting != "AHOI"{
 		T.Error("got wrong request parameter")
 	}
-	err := exp.Reply(&req,sayHelloRes{"MOINSEN"})
+	err := exp.Reply(&req,SayHelloRes{"MOINSEN"})
 	if err != nil {
 		T.Error(err)
 	}
-	var res1 sayHelloRes
+	var res1 SayHelloRes
 	imp1.Listen().Decode(&res1)
 	log.Println("res1",res1)
 	if res1.Answer != "MOINSEN"{
 		T.Error("got wrong result parameter")
 	}
-	var res2 sayHelloRes
+	var res2 SayHelloRes
 	imp2.Listen().Decode(&res2)
 	log.Println("res2",res2)
 	if res2.Answer != "MOINSEN"{
@@ -130,22 +118,22 @@ func TestDelayedExporter(T *testing.T){
 
 
 
-	res,_ :=	imp.CallFunction(testkey.Functions[0].Name,sayHelloReq{"AHOI"},ONE2ONE)
+	res,_ :=	imp.CallFunction(Testkey.Functions[0].Name,SayHelloReq{"AHOI"},ONE2ONE)
 	exporter, exp := testexporter()
 	defer exporter.Close()
 	req := <-exp.Request
-	var sayhelloreq sayHelloReq
-	req.Decode(&sayhelloreq)
-	log.Println(sayhelloreq)
+	var SayHelloReq SayHelloReq
+	req.Decode(&SayHelloReq)
+	log.Println(SayHelloReq)
 
-	if sayhelloreq.Greeting != "AHOI"{
+	if SayHelloReq.Greeting != "AHOI"{
 		T.Error("got wrong request parameter")
 	}
-	err := exp.Reply(&req,sayHelloRes{"MOINSEN"})
+	err := exp.Reply(&req,SayHelloRes{"MOINSEN"})
 	if err != nil {
 		T.Error(err)
 	}
-	var result sayHelloRes
+	var result SayHelloRes
 	(<-res).Decode(&result)
 	log.Println(result)
 	if result.Answer != "MOINSEN"{
@@ -153,32 +141,63 @@ func TestDelayedExporter(T *testing.T){
 	}
 }
 
+func TestTagging(T *testing.T){
+	importer, imp := testimporter()
+	defer importer.Close()
+	exporter, exp := testexporter()
+	defer exporter.Close()
+	time.Sleep(100*time.Millisecond)
+	if imp.Connected == false {
+		T.Error("could not connect to appkey")
+	}
 
+	imp.UpdateTags([]string{"testtag"})
+	time.Sleep(300*time.Millisecond)
+	if imp.Connected == true {
+		T.Error("could not disconnect from appkey")
+	}
+	exp.UpdateTags([]string{"testtag"})
+
+	time.Sleep(100*time.Millisecond)
+	if imp.Connected == false {
+		T.Error("could not connect to appkey")
+	}
+	exp.UpdateTags([]string{"testtag","anothertag"})
+
+	time.Sleep(100*time.Millisecond)
+	if imp.Connected == false {
+		T.Error("could not connect to appkey")
+	}
+
+	exp.UpdateTags([]string{"anothertag"})
+	time.Sleep(300*time.Millisecond)
+	if imp.Connected == true {
+		T.Error("could not disconnect from appkey")
+	}
+	imp.UpdateTags([]string{})
+	time.Sleep(100*time.Millisecond)
+	if imp.Connected == false {
+		T.Error("could not connect to appkey")
+	}
+}
 /*func replyOnce(exp ExportedAppKey) {
 
 }*/
 
 
 
-type sayHelloReq struct {
-	Greeting string
-	}
-
-type sayHelloRes struct {
-	Answer string
-}
 
 func testexporter() (*AurSirInterface, *ExportedAppKey){
 	iface:=NewInterface("testex")
 
 
-	exp:=iface.AddExport(testkey,nil)
+	exp:=iface.AddExport(Testkey,nil)
 	return iface, exp
 
 }
 func testimporter() (*AurSirInterface,*ImportedAppKey){
 	iface:=NewInterface("testimp")
-	imp:=iface.AddImport(testkey,nil)
+	imp:=iface.AddImport(Testkey,nil)
 	return iface, imp
 }
 

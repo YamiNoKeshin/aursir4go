@@ -14,7 +14,7 @@ type AppMessage struct {
 
 	MsgCodec string //the codec used to serialize the message
 
-	Msg	[]byte //the encoded message as byte array
+	Msg	*[]byte //the encoded message as byte array
 }
 
 func (appMsg AppMessage) Decode() (AurSirMessage, error){
@@ -76,6 +76,14 @@ return m, err
 		var m AurSirStopListenMessage
 err := codec.decode(appMsg.Msg,&m)
 return m, err
+	case UPDATE_EXPORT:
+		var m AurSirUpdateExportMessage
+err := codec.decode(appMsg.Msg,&m)
+return m, err
+	case UPDATE_IMPORT:
+		var m AurSirUpdateImportMessage
+err := codec.decode(appMsg.Msg,&m)
+return m, err
 
 	default:
 		return nil, errors.New("Unknown Message")
@@ -84,18 +92,21 @@ return m, err
 }
 
 type codec interface{
-	encode(interface {}) ([]byte,error)
-	decode([]byte,interface {}) error
+	encode(interface {}) (*[]byte,error)
+	decode(*[]byte,interface {}) error
 }
 
 type codecJson struct {}
 
-func (codecJson) encode(i interface {})([]byte,error){
-	return json.Marshal(i)
+func (codecJson) encode(i interface {})(*[]byte,error){
+
+	enc, err := json.Marshal(i)
+
+	return &enc, err
 }
 
-func (codecJson) decode(b []byte,t interface {})error{
-	return json.Unmarshal(b,t)
+func (codecJson) decode(b *[]byte,t interface {})error{
+	return json.Unmarshal(*b,t)
 }
 
 func getCodec(codec string) codec{
@@ -148,6 +159,10 @@ func msg2cmd(msg AurSirMessage) int64 {
 		return LISTEN
 	case AurSirStopListenMessage:
 		return STOP_LISTEN
+	case AurSirUpdateExportMessage:
+		return UPDATE_EXPORT
+	case AurSirUpdateImportMessage:
+		return UPDATE_IMPORT
 
 	}
 	return -1
