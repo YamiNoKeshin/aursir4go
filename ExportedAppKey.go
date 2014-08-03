@@ -1,18 +1,18 @@
-package AurSir4Go
+package aursir4go
 
-type ExportedAppKey struct{
-	iface *AurSirInterface
-	key AppKey
-	tags []string
+type ExportedAppKey struct {
+	iface    *AurSirInterface
+	key      AppKey
+	tags     []string
 	exportId string
-	Request chan Request
+	Request  chan AurSirRequest
 }
 
-func (eak ExportedAppKey) Tags() []string{
+func (eak ExportedAppKey) Tags() []string {
 	return eak.tags
 }
 
-func (eak ExportedAppKey) Reply(req *Request, res interface {}) error {
+func (eak ExportedAppKey) Reply(req *AurSirRequest, res interface{}) error {
 	var aursirResult AurSirResult
 	aursirResult.AppKeyName = eak.key.ApplicationKeyName
 	aursirResult.Codec = "JSON"
@@ -21,17 +21,17 @@ func (eak ExportedAppKey) Reply(req *Request, res interface {}) error {
 	aursirResult.ImportId = req.ImportId
 	aursirResult.ExportId = eak.exportId
 	aursirResult.Tags = eak.tags
-	aursirResult.FunctionName = req.Function
-	codec:= getCodec("JSON")
-	result, err := codec.encode(res)
+	aursirResult.FunctionName = req.FunctionName
+	codec := GetCodec("JSON")
+	result, err := codec.Encode(res)
 
-	if err ==nil {
+	if err == nil {
 		aursirResult.Result = *result
 		eak.iface.out <- aursirResult
 	}
 	return err
 }
-func (eak *ExportedAppKey) UpdateTags(NewTags []string){
+func (eak *ExportedAppKey) UpdateTags(NewTags []string) {
 	eak.tags = NewTags
-	eak.iface.out <- AurSirUpdateExportMessage{eak.exportId,eak.tags}
+	eak.iface.out <- AurSirUpdateExportMessage{eak.exportId, eak.tags}
 }

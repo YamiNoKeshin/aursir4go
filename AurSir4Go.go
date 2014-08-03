@@ -1,4 +1,4 @@
-package AurSir4Go
+package aursir4go
 
 import (
 	uuid "github.com/nu7hatch/gouuid"
@@ -108,7 +108,7 @@ func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppK
 
 	ak.exportId = expMsg.ExportId
 
-	ak.Request = make(chan Request)
+	ak.Request = make(chan AurSirRequest)
 
 	(*iface.exports)[expMsg.ExportId] = &ak
 	log.Println(*iface.exports)
@@ -184,7 +184,7 @@ func (iface *AurSirInterface) sender() {
 		var appmsg AppMessage
 
 		appmsg.Encode(msg, "JSON")
-		log.Println("Sending", appmsg)
+		log.Println("Sending", string(*appmsg.Msg))
 
 		if appmsg.MsgType == DOCK {
 			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(*appmsg.Msg), strconv.FormatInt(iface.port, 10)}, 0)
@@ -254,6 +254,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 		if err == nil {
 			iumsg, ok := asmsg.(AurSirImportUpdatedMessage)
 			if ok {
+				log.Println(*iface.imports)
 				(*iface.imports)[iumsg.ImportId].Connected = iumsg.Exported
 			}
 
@@ -261,7 +262,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	case REQUEST:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2],&encmsg}
+		msg := AppMessage{msgType, message[2], &encmsg}
 		asmsg, err := msg.Decode()
 
 		if err == nil {
@@ -274,7 +275,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 					log.Println(exp.key.ApplicationKeyName)
 					if exp.key.ApplicationKeyName == reqmsg.AppKeyName {
 
-						exp.Request <- Request{reqmsg.Request, reqmsg.FunctionName, reqmsg.Uuid, reqmsg.CallType, reqmsg.ImportId}
+						exp.Request <- reqmsg
 
 					}
 				}
@@ -309,6 +310,14 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 			}
 
+		}
+
+	case CALLCHAIN_ADDED:
+		encmsg := []byte(message[3])
+		msg := AppMessage{msgType, message[2], &encmsg}
+		ccmsg, err := msg.Decode()
+		if err == nil {
+			iface.in <- ccmsg
 		}
 
 	default:

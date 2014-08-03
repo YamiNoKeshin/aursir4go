@@ -1,4 +1,4 @@
-package AurSir4Go
+package aursir4go
 
 var Testkey = AppKey{
 	"org.aursir.helloaursir",
@@ -8,11 +8,11 @@ var Testkey = AppKey{
 			[]Data{
 				Data{
 					"Greeting",
-					1}},
+					STRING}},
 			[]Data{
 				Data{
 					"Answer",
-					1}}}}}
+					STRING}}}}}
 
 type SayHelloReq struct {
 	Greeting string
