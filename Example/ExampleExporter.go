@@ -1,20 +1,20 @@
 package main
 
 import (
-	"github.com/joernweissenborn/AurSir4Go"
+	"github.com/joernweissenborn/aursir4go"
 	"log"
 )
 
 func main(){
-	iface:=AurSir4Go.NewInterface("testex")
+	iface:=aursir4go.NewInterface("testex")
 
 
-	exp:=iface.AddExport(AurSir4Go.Testkey,nil)
+	exp:=iface.AddExport(aursir4go.Testkey,nil)
 
 	for r := range exp.Request {
-		var sayhelloreq AurSir4Go.SayHelloReq
+		var sayhelloreq aursir4go.SayHelloReq
 		r.Decode(&sayhelloreq)
 		log.Println("Got",sayhelloreq.Greeting)
-		exp.Reply(&r,AurSir4Go.SayHelloRes{"MOINSEN, you said"+sayhelloreq.Greeting})
+		exp.Reply(&r,aursir4go.SayHelloRes{"MOINSEN, you said"+sayhelloreq.Greeting})
 	}
 }

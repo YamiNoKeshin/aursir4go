@@ -168,7 +168,7 @@ func TestTagging(T *testing.T) {
 		T.Error("could not disconnect from appkey")
 	}
 	imp.UpdateTags([]string{})
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	if imp.Connected == false {
 		T.Error("could not connect to appkey")
 	}

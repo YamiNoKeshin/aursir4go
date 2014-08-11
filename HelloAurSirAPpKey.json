@@ -1,0 +1,13 @@
+{
+    "ApplicationKeyName":"org.aursir.helloaursir",
+    "Functions":[
+        {"Name":"SayHello",
+        "Input":[
+            {"Name":"Greeting","Type":1}
+            ],
+        "Output":[
+            {"Name":"Answer","Type":1}
+            ]
+        }
+    ]
+}
