@@ -96,6 +96,7 @@ func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppK
 	ak.iface = iface
 	ak.key = key
 	ak.tags = tags
+	ak.persistenceStrategies = map[string]string{}
 
 	expReq := AurSirAddExportMessage{key, tags}
 

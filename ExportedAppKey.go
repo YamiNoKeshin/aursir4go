@@ -1,5 +1,7 @@
 package aursir4go
 
+import "time"
+
 type ExportedAppKey struct {
 	iface    *AurSirInterface
 	key      AppKey
@@ -23,6 +25,7 @@ func (eak ExportedAppKey) Reply(req *AurSirRequest, res interface{}) error {
 	aursirResult.ExportId = eak.exportId
 	aursirResult.Tags = eak.tags
 	aursirResult.FunctionName = req.FunctionName
+	aursirResult.Timestamp = time.Now()
 
 	if strategy,f := eak.persistenceStrategies[req.FunctionName]; f {
 		aursirResult.Persistent = true

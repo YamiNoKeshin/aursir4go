@@ -1,5 +1,12 @@
 package aursir4go
 
+import (
+	"fmt"
+	"sort"
+	"crypto/md5"
+	"encoding/base64"
+)
+
 type AppKey struct {
 	ApplicationKeyName string
 
@@ -20,12 +27,38 @@ type Data struct {
 	Type int
 }
 
-//func (ak AppKey) Hash() (string){
-//hasher := sha1.New()
-//hasher.Write([]byte(ak))
-//sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
-//return sha
-//}
+func HashAppKey(AppKey AppKey) string{
+	funs := make([]string,len(AppKey.Functions))
+	for j, f := range AppKey.Functions{
+		fstring := f.Name
+		inputs := make([]string,len(f.Input))
+		for i,in := range f.Input {
+			inputs[i] = fmt.Sprintf("%s%d",in.Name,in.Type)
+		}
+		sort.Strings(inputs)
+		outputs := make([]string,len(f.Output))
+		for i,out := range f.Output {
+			outputs[i] = fmt.Sprintf("%s%d",out.Name,out.Type)
+		}
+		sort.Strings(inputs)
+		for _,s := range inputs {
+			fstring = fstring+s
+		}
+		for _,s := range outputs {
+			fstring = fstring+s
+		}
+		funs[j] = fstring
+	}
+	sort.Strings(funs)
+	keystring := AppKey.ApplicationKeyName
+	for _,f := range funs{
+		keystring = keystring+f
+	}
+	hasher := md5.New()
+	hasher.Write([]byte(keystring))
+	hash := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	return hash
+}
 
 type Request struct {
 	req      []byte

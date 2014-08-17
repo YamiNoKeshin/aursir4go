@@ -280,7 +280,20 @@ func TestCallChainFinalize(T *testing.T) {
 	if csrep.Size != int64(len([]byte(csr.String))) {
 		T.Error("got wrong result parameter")
 	}
+}
 
+
+func TestPersitenceLogging(T *testing.T) {
+	importer, imp := testimporter()
+	defer importer.Close()
+	exporter, exp := testexporter()
+	defer exporter.Close()
+	exp.SetLogging("SayHello")
+	res, _ := imp.CallFunction(Testkey.Functions[0].Name, SayHelloReq{"AHOI"}, ONE2ONE)
+	req := <-exp.Request
+
+	exp.Reply(&req, SayHelloRes{"MOINSEN"})
+	<-res
 }
 
 func testexporter() (*AurSirInterface, *ExportedAppKey) {
