@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+//The AurSirInterface handles the runtime time connection. It holds methods to create im- and exports.
 type AurSirInterface struct {
 	AppName string //Name of the application
 
@@ -31,7 +32,7 @@ type AurSirInterface struct {
 	resultChans *map[string]chan Result
 }
 
-//NewInterface creates a new AurSir interface and returns a pointer to it
+//NewInterface creates and launches a new AurSirInterface and returns a pointer to it.
 func NewInterface(AppName string) *AurSirInterface {
 
 	//create interface
@@ -87,7 +88,8 @@ func (iface *AurSirInterface) Close() {
 		time.Sleep(10 * time.Millisecond)
 	}
 }
-
+//AddExport adds the specified ApplicationKey and tags and registeres it at the runtime. It returns a pointer to an
+// ExportedAppKey which can be userd to handle incoming requests
 func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppKey {
 	<-iface.exportsSem
 	var ak ExportedAppKey
@@ -117,6 +119,8 @@ func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppK
 	return &ak
 }
 
+//AddImport adds the specified ApplicationKey and tags and registeres it at the runtime. It returns a pointer to an
+// ImportedAppKey which can be used to request function calls or call chains and listening to functions
 func (iface *AurSirInterface) AddImport(key AppKey, tags []string) *ImportedAppKey {
 	var ak ImportedAppKey
 	ak.iface = iface
@@ -245,6 +249,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 	switch msgType {
 
 	case DOCKED:
+		go pingUdp(iface.UUID)
 		*iface.connected = true
 
 	case IMPORT_UPDATED:
@@ -331,9 +336,10 @@ func (iface *AurSirInterface) processMsg(message []string) {
 	}
 }
 
-func (iface *AurSirInterface) Connected() bool {
-	con := *iface.connected
-	return con
+//Connected returns true if interface sucessfully connected to a runtime
+func (iface *AurSirInterface) Connected() (connected bool) {
+	connected = *iface.connected
+	return
 }
 
 func getRandomPort() int64 {
@@ -353,40 +359,3 @@ func generateUuid() string {
 	}
 	return Uuid.String()
 }
-
-/*
-
-func (r AurSirRequest) ApplicationKeyName() string {
-	var AppKey struct {
-		ApplicationKeyName string
-		}
-	json.Unmarshal([]byte(r.RequestJSON), &AppKey)
-	return AppKey.ApplicationKeyName
-}
-
-func (r AurSirRequest) FunctionName() string {
-	var Fun struct {
-		Function string
-	}
-	json.Unmarshal([]byte(r.RequestJSON), &Fun)
-	return Fun.Function
-}
-*/
-
-/*
-func (r AurSirResult) ApplicationKeyName() string {
-	var AppKey struct {
-		ApplicationKeyName string
-		}
-	json.Unmarshal([]byte(r.ResultJSON), &AppKey)
-	return AppKey.ApplicationKeyName
-}
-
-func (r AurSirResult) FunctionName() string {
-	var Fun struct {
-		Function string
-	}
-	json.Unmarshal([]byte(r.ResultJSON), &Fun)
-	return Fun.Function
-}
-*/

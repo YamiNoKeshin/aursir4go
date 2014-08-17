@@ -6,6 +6,7 @@ type ExportedAppKey struct {
 	tags     []string
 	exportId string
 	Request  chan AurSirRequest
+	persistenceStrategies map[string] string
 }
 
 func (eak ExportedAppKey) Tags() []string {
@@ -22,6 +23,12 @@ func (eak ExportedAppKey) Reply(req *AurSirRequest, res interface{}) error {
 	aursirResult.ExportId = eak.exportId
 	aursirResult.Tags = eak.tags
 	aursirResult.FunctionName = req.FunctionName
+
+	if strategy,f := eak.persistenceStrategies[req.FunctionName]; f {
+		aursirResult.Persistent = true
+		aursirResult.PersistenceStrategy = strategy
+	}
+
 	codec := GetCodec("JSON")
 	result, err := codec.Encode(res)
 
@@ -34,4 +41,10 @@ func (eak ExportedAppKey) Reply(req *AurSirRequest, res interface{}) error {
 func (eak *ExportedAppKey) UpdateTags(NewTags []string) {
 	eak.tags = NewTags
 	eak.iface.out <- AurSirUpdateExportMessage{eak.exportId, eak.tags}
+}
+
+//SetLogging sets the persitence strategy for function calls of the specified function to "log". This overrides all previous
+// persitence strategies!
+func (eak *ExportedAppKey) SetLogging(FunctionName string){
+	eak.persistenceStrategies[FunctionName] = "log"
 }

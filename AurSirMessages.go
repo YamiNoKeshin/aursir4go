@@ -1,5 +1,7 @@
 package aursir4go
 
+import "time"
+
 //AurSirMessage represents a generic message
 type AurSirMessage interface {
 }
@@ -79,9 +81,11 @@ type AurSirRequest struct {
 	Tags         []string
 	Uuid         string
 	ImportId     string
+	Timestamp	time.Time
 	Codec        string
 	IsFile		 bool
 	Persistent	bool
+	PersistenceStrategy string //String to determine the strategy (e.g. "log")
 	Request      []byte
 }
 
@@ -93,9 +97,11 @@ type AurSirResult struct {
 	Uuid         string
 	ImportId     string
 	ExportId     string
+	Timestamp	time.Time
 	Codec        string
 	IsFile 		bool
 	Persistent	bool
+	PersistenceStrategy string //String to determine the strategy (e.g. "log")
 	Result       []byte
 }
 

@@ -2,8 +2,10 @@ package aursir4go
 
 import (
 	"errors"
+	"time"
 )
-
+//An ImportedAppKey represents an applications imports and is used to call and listen to functions and to create
+// callchains
 type ImportedAppKey struct {
 	iface      *AurSirInterface
 	key        AppKey
@@ -12,12 +14,15 @@ type ImportedAppKey struct {
 	Connected  bool
 	listenFuns []string
 	listenChan chan Result
+	persistenceStrategies map[string] string
 }
 
+//Tags returns the currently register tags for the import.
 func (iak ImportedAppKey) Tags() []string {
 	return iak.tags
 }
 
+//Listen to functions regiters the import for an
 func (iak *ImportedAppKey) ListenToFunction(FunctionName string) {
 	listenid := iak.key.ApplicationKeyName + "." + FunctionName
 	iak.iface.registerResultChan(listenid, iak.listenChan)
@@ -25,6 +30,7 @@ func (iak *ImportedAppKey) ListenToFunction(FunctionName string) {
 	iak.listenFuns = append(iak.listenFuns, listenid)
 }
 
+//Listen listens for results on listened functions. If no listen functions have been added, it returns an empty result Result.
 func (iak *ImportedAppKey) Listen() Result {
 	if len(iak.listenFuns) == 0 {
 		return Result{}
@@ -32,13 +38,12 @@ func (iak *ImportedAppKey) Listen() Result {
 	return <-iak.listenChan
 }
 
+//Call functions calls the function specified by FunctionName and returns a channel to get the result. This channel we
+// be nil on Many2... call types! You need to use Listen() in this case.
 func (iak *ImportedAppKey) CallFunction(FunctionName string, Arguments interface{}, CallType int64) (chan Result, error) {
 	return iak.callFunction(FunctionName,Arguments,CallType, false)
 }
 
-func (iak *ImportedAppKey) PersistentCallFunction(FunctionName string, Arguments interface{}, CallType int64) (chan Result, error) {
-	return iak.callFunction(FunctionName,Arguments,CallType, true)
-}
 
 func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface{}, CallType int64, Persist bool) (chan Result, error) {
 
@@ -65,9 +70,11 @@ func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface
 		iak.tags,
 		reqUuid,
 		iak.importId,
+		time.Now(),
 		"JSON",
 		false,
 		Persist,
+		"",
 		*args}
 
 	var resChan chan Result
@@ -129,4 +136,14 @@ func (iak *ImportedAppKey) FinalizeCallChain(FunctionName string, ArgumentMap ma
 	}
 
 	return resChan, nil
+}
+
+//SetLogging sets the persitence strategy for function calls of the specified function to "log". This overrides all previous
+// persitence strategies!
+func (iak *ImportedAppKey) SetLogging(FunctionName string){
+	iak.persistenceStrategies[FunctionName] = "log"
+}
+
+func (iak *ImportedAppKey) PersistentCallFunction(FunctionName string, Arguments interface{}, CallType int64) (chan Result, error) {
+	return iak.callFunction(FunctionName,Arguments,CallType, true)
 }
