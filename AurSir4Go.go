@@ -21,7 +21,7 @@ type AurSirInterface struct {
 
 	port int64 // the incoming port of the interface
 
-	connected *bool // a connected flag
+	connected chan bool //a connected flag
 
 	exports *map[string]*ExportedAppKey
 
@@ -56,9 +56,8 @@ func NewInterface(AppName string) *AurSirInterface {
 	iface.port = getRandomPort()
 
 	//init the connection flag
-	conn := false
-	iface.connected = &conn
-
+	iface.connected = make(chan bool,1)
+	//iface.connected <- false
 	exports := map[string]*ExportedAppKey{}
 	iface.exports = &exports
 	iface.exportsSem = make(chan struct{}, 1)
@@ -91,6 +90,8 @@ func (iface *AurSirInterface) Close() {
 //AddExport adds the specified ApplicationKey and tags and registeres it at the runtime. It returns a pointer to an
 // ExportedAppKey which can be userd to handle incoming requests
 func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppKey {
+	for !iface.Connected(){}
+
 	<-iface.exportsSem
 	var ak ExportedAppKey
 	ak.iface = iface
@@ -123,6 +124,9 @@ func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppK
 //AddImport adds the specified ApplicationKey and tags and registeres it at the runtime. It returns a pointer to an
 // ImportedAppKey which can be used to request function calls or call chains and listening to functions
 func (iface *AurSirInterface) AddImport(key AppKey, tags []string) *ImportedAppKey {
+
+	for !iface.Connected(){}
+
 	var ak ImportedAppKey
 	ak.iface = iface
 	ak.key = key
@@ -155,7 +159,7 @@ func (iface *AurSirInterface) registerResultChan(resUuid string, rc chan Result)
 
 //connect initializes the connection to the runtime by sending a DOCK message
 func (iface *AurSirInterface) connect() {
-	iface.out <- AurSirDockMessage{iface.AppName}
+	iface.out <- AurSirDockMessage{iface.AppName,[]string{"MSGPACK","JSON"}}
 }
 
 func (iface *AurSirInterface) backend() {
@@ -251,7 +255,8 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	case DOCKED:
 		go pingUdp(iface.UUID)
-		*iface.connected = true
+		iface.connected <- true
+
 
 	case IMPORT_UPDATED:
 		encmsg := []byte(message[3])
@@ -308,10 +313,16 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 				rc, f := (*iface.resultChans)[resId]
 
-				log.Println(resId)
-				//log.Println(rc)
 				if f {
-					rc <- Result{resmsg.Result, resmsg.FunctionName, resmsg.Uuid, resmsg.CallType}
+					rc <- Result{
+						resmsg.Result,
+						resmsg.FunctionName,
+						resmsg.Uuid,
+						resmsg.CallType,
+						resmsg.Stream,
+						resmsg.StreamFinished,
+						resmsg.Codec}
+
 				}
 
 			}
@@ -337,9 +348,11 @@ func (iface *AurSirInterface) processMsg(message []string) {
 	}
 }
 
-//Connected returns true if interface sucessfully connected to a runtime
+//Connected returns true if interface successfully connected to a runtime
 func (iface *AurSirInterface) Connected() (connected bool) {
-	connected = *iface.connected
+
+	connected = <-iface.connected
+	iface.connected <- connected
 	return
 }
 

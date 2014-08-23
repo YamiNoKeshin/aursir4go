@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"errors"
+	"github.com/vmihailenco/msgpack"
 )
 
 
@@ -18,6 +19,8 @@ func GetCodec(codec string) AurSirCodec {
 	switch codec {
 	case "JSON":
 		return codecJson{}
+	case "MSGPACK":
+		return codecMsgpack{}
 	default:
 		return nil
 	}
@@ -72,4 +75,25 @@ func (appMsg *AppMessage) Encode(msg AurSirMessage, codec string) error {
 	return err
 
 }
+
+type codecMsgpack struct{}
+
+func (codecMsgpack) Encode(i interface{}) (*[]byte, error) {
+
+	enc, err := msgpack.Marshal(i)
+
+	return &enc, err
+}
+
+func (codecMsgpack) Decode(b *[]byte, t interface{}) error {
+	return msgpack.Unmarshal(*b, t)
+}
+func (codecMsgpack) DecodeFile(filename string , t interface{}) error {
+	src, err := ioutil.ReadFile(filename)
+	if err!= nil {
+		return err
+	}
+	return msgpack.Unmarshal(src, t)
+}
+
 

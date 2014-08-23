@@ -66,10 +66,11 @@ type Request struct {
 	Uuid     string
 	CallType int64
 	ImportId string
+	codec string
 }
 
 func (r Request) Decode(target interface{}) {
-	codec := GetCodec("JSON")
+	codec := GetCodec(r.codec)
 	codec.Decode(&r.req, &target)
 }
 
@@ -78,9 +79,12 @@ type Result struct {
 	Function string
 	Uuid     string
 	CallType int64
+	Stream	bool
+	Finished	bool
+	codec string
 }
 
-func (r Result) Decode(target interface{}) {
-	codec := GetCodec("JSON")
-	codec.Decode(&r.res, &target)
+func (r Result) Decode(target interface{}) error {
+	codec := GetCodec(r.codec)
+	return codec.Decode(&r.res, &target)
 }

@@ -1,6 +1,6 @@
 package aursir4go
 
-var Testkey = AppKey{
+var HelloAurSirAppKey = AppKey{
 	"org.aursir.helloaursir",
 	[]Function{
 		Function{

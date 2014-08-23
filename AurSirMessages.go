@@ -9,6 +9,7 @@ type AurSirMessage interface {
 //An AurSirDockMessage indicates that an app wants to registered at the engine
 type AurSirDockMessage struct {
 	AppName string
+	Codecs []string
 }
 
 //An AurSirDockMessage indicates that an app is sucessfully registered
@@ -103,6 +104,8 @@ type AurSirResult struct {
 	Persistent	bool
 	PersistenceStrategy string //String to determine the strategy (e.g. "log")
 	Result       []byte
+	Stream	bool
+	StreamFinished bool
 }
 
 //An AurSirCallChain contains the AppKey's name together with the respective Function name. The

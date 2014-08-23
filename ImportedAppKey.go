@@ -17,12 +17,12 @@ type ImportedAppKey struct {
 	persistenceStrategies map[string] string
 }
 
-//Tags returns the currently register tags for the import.
+//Tags returns the currently registered tags for the import.
 func (iak ImportedAppKey) Tags() []string {
 	return iak.tags
 }
 
-//Listen to functions regiters the import for an
+//Listen to functions registers the import for listening to this function. Use Listen to get Results for this function.
 func (iak *ImportedAppKey) ListenToFunction(FunctionName string) {
 	listenid := iak.key.ApplicationKeyName + "." + FunctionName
 	iak.iface.registerResultChan(listenid, iak.listenChan)
@@ -45,50 +45,17 @@ func (iak *ImportedAppKey) CallFunction(FunctionName string, Arguments interface
 }
 
 
-func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface{}, CallType int64, Persist bool) (chan Result, error) {
-
-	if CallType > 3 {
-		return nil, errors.New("Invalid calltype")
-	}
-
-	codec := GetCodec("JSON")
-	if codec == nil {
-		return nil, errors.New("unknown codec")
-	}
-
-	args, err := codec.Encode(Arguments)
-	if err != nil {
-		return nil, err
-	}
-
-	reqUuid := generateUuid()
-
-	iak.iface.out <- AurSirRequest{
-		iak.key.ApplicationKeyName,
-		FunctionName,
-		CallType,
-		iak.tags,
-		reqUuid,
-		iak.importId,
-		time.Now(),
-		"JSON",
-		false,
-		Persist,
-		"",
-		*args}
-
-	var resChan chan Result
-	if CallType == ONE2ONE || CallType == ONE2MANY {
-		resChan = make(chan Result)
-		iak.iface.registerResultChan(reqUuid, resChan)
-	}
-
-	return resChan, nil
-}
-
+//UpdateTags sets the imports tags while overriding the old and registers the new tagset at the runtime. If you want to
+// add a tag, use AddTag.
 func (iak *ImportedAppKey) UpdateTags(NewTags []string) {
 	iak.tags = NewTags
 	iak.iface.out <- AurSirUpdateImportMessage{iak.importId, iak.tags}
+}
+
+//AddTag adds a tag to the imports tags and registers the new tagset at the runtime. If you want to set a new tagset,
+// use UpdateTags
+func (iak *ImportedAppKey) AddTag(Tag string) {
+	iak.UpdateTags(append(iak.tags,Tag))
 }
 
 func (iak *ImportedAppKey) NewCallChain(OriginFunctionName string, Arguments interface{}, OriginCallType int64) (CallChain, error) {
@@ -146,4 +113,44 @@ func (iak *ImportedAppKey) SetLogging(FunctionName string){
 
 func (iak *ImportedAppKey) PersistentCallFunction(FunctionName string, Arguments interface{}, CallType int64) (chan Result, error) {
 	return iak.callFunction(FunctionName,Arguments,CallType, true)
+}
+func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface{}, CallType int64, Persist bool) (chan Result, error) {
+
+	if CallType > 3 {
+		return nil, errors.New("Invalid calltype")
+	}
+
+	codec := GetCodec("MSGPACK")
+	if codec == nil {
+		return nil, errors.New("unknown codec")
+	}
+
+	args, err := codec.Encode(Arguments)
+	if err != nil {
+		return nil, err
+	}
+
+	reqUuid := generateUuid()
+
+	iak.iface.out <- AurSirRequest{
+		iak.key.ApplicationKeyName,
+		FunctionName,
+		CallType,
+		iak.tags,
+		reqUuid,
+		iak.importId,
+		time.Now(),
+		"MSGPACK",
+		false,
+		Persist,
+		"",
+		*args}
+
+	var resChan chan Result
+	if CallType == ONE2ONE || CallType == ONE2MANY {
+		resChan = make(chan Result)
+		iak.iface.registerResultChan(reqUuid, resChan)
+	}
+
+	return resChan, nil
 }
