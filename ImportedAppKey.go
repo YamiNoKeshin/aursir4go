@@ -70,7 +70,7 @@ func (iak *ImportedAppKey) NewCallChain(OriginFunctionName string, Arguments int
 	}
 
 	cc := createCallChain(iak.iface)
-	cc.setOrigin(iak.key.ApplicationKeyName, OriginFunctionName, "JSON", args, iak.Tags(), OriginCallType, iak.importId)
+	cc.setOrigin(iak.key.ApplicationKeyName, OriginFunctionName, "JSON", &args, iak.Tags(), OriginCallType, iak.importId)
 	return cc, nil
 
 }
@@ -144,7 +144,10 @@ func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface
 		false,
 		Persist,
 		"",
-		*args}
+		args,
+		false,
+		false,
+	}
 
 	var resChan chan Result
 	if CallType == ONE2ONE || CallType == ONE2MANY {

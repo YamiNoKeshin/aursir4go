@@ -9,7 +9,7 @@ type AppMessage struct {
 
 	MsgCodec string //the codec used to serialize the message
 
-	Msg *[]byte //the encoded message as byte array
+	Msg []byte //the encoded message as byte array
 }
 
 func (appMsg AppMessage) Decode() (AurSirMessage, error) {

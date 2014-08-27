@@ -73,10 +73,10 @@ func (eak ExportedAppKey) reply(req *AurSirRequest, res interface{},stream, fini
 	}
 
 	codec := GetCodec("MSGPACK")
-	result, err := codec.Encode(res)
+	var err error
+	aursirResult.Result, err = codec.Encode(res)
 
 	if err == nil {
-		aursirResult.Result = *result
 		eak.iface.out <- aursirResult
 	}
 	return err

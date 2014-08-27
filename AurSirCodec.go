@@ -5,12 +5,14 @@ import (
 	"io/ioutil"
 	"errors"
 	"github.com/vmihailenco/msgpack"
+	"github.com/ugorji/go/codec"
+	"bytes"
 )
 
 
 type AurSirCodec interface {
-	Encode(interface{}) (*[]byte, error)
-	Decode(*[]byte, interface{}) error
+	Encode(interface{}) ([]byte, error)
+	Decode([]byte, interface{}) error
 	DecodeFile(string, interface {}) error
 }
 
@@ -39,22 +41,22 @@ func (asr AurSirRequest) Decode(target interface{}) error {
 		return codec.DecodeFile(string(asr.Request),&target)
 	}
 
-	return codec.Decode(&asr.Request, &target)
+	return codec.Decode(asr.Request, &target)
 }
 
 
 
 type codecJson struct{}
 
-func (codecJson) Encode(i interface{}) (*[]byte, error) {
+func (codecJson) Encode(i interface{}) ([]byte, error) {
 
 	enc, err := json.Marshal(i)
 
-	return &enc, err
+	return enc, err
 }
 
-func (codecJson) Decode(b *[]byte, t interface{}) error {
-	return json.Unmarshal(*b, t)
+func (codecJson) Decode(b []byte, t interface{}) error {
+	return json.Unmarshal(b, t)
 }
 func (codecJson) DecodeFile(filename string , t interface{}) error {
 	src, err := ioutil.ReadFile(filename)
@@ -78,15 +80,17 @@ func (appMsg *AppMessage) Encode(msg AurSirMessage, codec string) error {
 
 type codecMsgpack struct{}
 
-func (codecMsgpack) Encode(i interface{}) (*[]byte, error) {
+func (codecMsgpack) Encode(i interface{}) ([]byte, error) {
 
 	enc, err := msgpack.Marshal(i)
 
-	return &enc, err
+	return enc, err
 }
 
-func (codecMsgpack) Decode(b *[]byte, t interface{}) error {
-	return msgpack.Unmarshal(*b, t)
+func (codecMsgpack) Decode(b []byte, t interface{}) error {
+	var h codec.MsgpackHandle
+	dec := codec.NewDecoder(bytes.NewReader(b),&h)
+	return dec.Decode(&t)
 }
 func (codecMsgpack) DecodeFile(filename string , t interface{}) error {
 	src, err := ioutil.ReadFile(filename)

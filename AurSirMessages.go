@@ -88,6 +88,8 @@ type AurSirRequest struct {
 	Persistent	bool
 	PersistenceStrategy string //String to determine the strategy (e.g. "log")
 	Request      []byte
+	Stream	bool
+	StreamFinished bool
 }
 
 type AurSirResult struct {

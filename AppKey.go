@@ -60,6 +60,11 @@ func HashAppKey(AppKey AppKey) string{
 	return hash
 }
 
+func (AppKey *AppKey) CreateFromJson(JSON string) error {
+		codec := GetCodec("JSON")
+		return codec.Decode([]byte(JSON), AppKey)
+	}
+
 type Request struct {
 	req      []byte
 	Function string
@@ -71,7 +76,7 @@ type Request struct {
 
 func (r Request) Decode(target interface{}) {
 	codec := GetCodec(r.codec)
-	codec.Decode(&r.req, &target)
+	codec.Decode(r.req, &target)
 }
 
 type Result struct {
@@ -86,5 +91,5 @@ type Result struct {
 
 func (r Result) Decode(target interface{}) error {
 	codec := GetCodec(r.codec)
-	return codec.Decode(&r.res, &target)
+	return codec.Decode(r.res, &target)
 }

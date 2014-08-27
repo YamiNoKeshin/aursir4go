@@ -193,12 +193,11 @@ func (iface *AurSirInterface) sender() {
 		var appmsg AppMessage
 
 		appmsg.Encode(msg, "JSON")
-		log.Println("Sending", string(*appmsg.Msg))
 
 		if appmsg.MsgType == DOCK {
-			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(*appmsg.Msg), strconv.FormatInt(iface.port, 10)}, 0)
+			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(appmsg.Msg), strconv.FormatInt(iface.port, 10)}, 0)
 		} else {
-			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(*appmsg.Msg)}, 0)
+			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(appmsg.Msg)}, 0)
 		}
 	}
 	log.Println("Sending LEAVE")
@@ -206,7 +205,7 @@ func (iface *AurSirInterface) sender() {
 
 	lmsg.Encode(AurSirLeaveMessage{}, "JSON")
 
-	skt.SendMessage([]string{strconv.FormatInt(lmsg.MsgType, 10), lmsg.MsgCodec, string(*lmsg.Msg)}, 0)
+	skt.SendMessage([]string{strconv.FormatInt(lmsg.MsgType, 10), lmsg.MsgCodec, string(lmsg.Msg)}, 0)
 	*iface.quit = true
 }
 
@@ -260,7 +259,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	case IMPORT_UPDATED:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2], &encmsg}
+		msg := AppMessage{msgType, message[2], encmsg}
 		asmsg, err := msg.Decode()
 		if err == nil {
 			iumsg, ok := asmsg.(AurSirImportUpdatedMessage)
@@ -273,7 +272,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	case REQUEST:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2], &encmsg}
+		msg := AppMessage{msgType, message[2], encmsg}
 		asmsg, err := msg.Decode()
 
 		if err == nil {
@@ -296,7 +295,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 		}
 	case RESULT:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2], &encmsg}
+		msg := AppMessage{msgType, message[2], encmsg}
 		asmsg, err := msg.Decode()
 		if err == nil {
 			resmsg, ok := asmsg.(AurSirResult)
@@ -331,7 +330,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	case CALLCHAIN_ADDED:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2], &encmsg}
+		msg := AppMessage{msgType, message[2], encmsg}
 		ccmsg, err := msg.Decode()
 		if err == nil {
 			iface.in <- ccmsg
@@ -339,7 +338,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 
 	default:
 		encmsg := []byte(message[3])
-		msg := AppMessage{msgType, message[2], &encmsg}
+		msg := AppMessage{msgType, message[2], encmsg}
 		asmsg, err := msg.Decode()
 
 		if err == nil {
