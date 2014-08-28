@@ -225,7 +225,7 @@ func (iface *AurSirInterface) listener() {
 
 	log.Println("Incoming ZeroMQ Socket open")
 
-	skt.SetRcvtimeo(100)
+	//skt.SetRcvtimeo(1000)
 
 	for !*iface.quit {
 
