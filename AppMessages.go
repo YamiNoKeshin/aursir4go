@@ -15,7 +15,6 @@ type AppMessage struct {
 func (appMsg AppMessage) Decode() (AurSirMessage, error) {
 
 	codec := GetCodec(appMsg.MsgCodec)
-
 	switch appMsg.MsgType {
 
 	case DOCK:

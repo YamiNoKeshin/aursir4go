@@ -13,7 +13,7 @@ func main(){
 	iface:=aursir4go.NewInterface("testex")
 
 
-	exp := iface.AddExport(aursir4go.HelloAurSirAppKey,nil)
+	exp := iface.AddExport(aursir4go.HelloAurSirAppKey,[]string{})
 
 	for r := range exp.Request {
 		var sayhelloreq aursir4go.SayHelloReq
