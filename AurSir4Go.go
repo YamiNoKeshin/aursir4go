@@ -253,7 +253,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 	switch msgType {
 
 	case DOCKED:
-		go pingUdp(iface.UUID)
+		go pingUdp(iface.UUID, iface.quit)
 		iface.connected <- true
 
 

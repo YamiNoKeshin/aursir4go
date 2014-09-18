@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func pingUdp(UUID string){
+func pingUdp(UUID string, killFlag *bool){
 
 	var pingtime = 8*time.Second
 
@@ -21,7 +21,11 @@ func pingUdp(UUID string){
 	t := time.NewTimer(pingtime)
 
 	for _ = range t.C{
+		if (*killFlag){
+			break
+		}
 		con.Write([]byte(UUID))
 		t.Reset(pingtime)
 	}
+	log.Println("Stopping UDP")
 }

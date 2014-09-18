@@ -18,8 +18,13 @@ type ImportedAppKey struct {
 }
 
 //Tags returns the currently registered tags for the import.
-func (iak ImportedAppKey) Tags() []string {
+func (iak *ImportedAppKey) Tags() []string {
 	return iak.tags
+}
+
+//Name returns the name of the imports ApplicationKey.
+func (iak *ImportedAppKey) Name() string {
+	return iak.key.ApplicationKeyName
 }
 
 //Listen to functions registers the import for listening to this function. Use Listen to get Results for this function.
