@@ -125,7 +125,7 @@ func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface
 		return nil, errors.New("Invalid calltype")
 	}
 
-	codec := GetCodec("MSGPACK")
+	codec := GetCodec("JSON")
 	if codec == nil {
 		return nil, errors.New("unknown codec")
 	}
@@ -145,7 +145,7 @@ func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface
 		reqUuid,
 		iak.importId,
 		time.Now(),
-		"MSGPACK",
+		"JSON",
 		false,
 		Persist,
 		"",

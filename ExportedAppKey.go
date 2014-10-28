@@ -56,7 +56,7 @@ func (eak *ExportedAppKey) SetLogging(FunctionName string){
 func (eak ExportedAppKey) reply(req *AurSirRequest, res interface{},stream, finished bool) error {
 	var aursirResult AurSirResult
 	aursirResult.AppKeyName = eak.key.ApplicationKeyName
-	aursirResult.Codec = "MSGPACK"
+	aursirResult.Codec = "JSON"
 	aursirResult.CallType = req.CallType
 	aursirResult.Uuid = req.Uuid
 	aursirResult.ImportId = req.ImportId
@@ -72,9 +72,34 @@ func (eak ExportedAppKey) reply(req *AurSirRequest, res interface{},stream, fini
 		aursirResult.PersistenceStrategy = strategy
 	}
 
-	codec := GetCodec("MSGPACK")
+	codec := GetCodec("JSON")
 	var err error
 	aursirResult.Result, err = codec.Encode(res)
+
+	if err == nil {
+		eak.iface.out <- aursirResult
+	}
+	return err
+}
+
+func (eak ExportedAppKey) Emit(FunctionName string, Result interface{},stream, finished bool) error {
+	var aursirResult AurSirResult
+	aursirResult.AppKeyName = eak.key.ApplicationKeyName
+	aursirResult.Codec = "JSON"
+	aursirResult.CallType = MANY2ONE
+	aursirResult.Uuid = generateUuid()
+	aursirResult.ExportId = eak.exportId
+	aursirResult.Tags = eak.tags
+	aursirResult.FunctionName = FunctionName
+	aursirResult.Timestamp = time.Now()
+	aursirResult.Stream = stream
+	aursirResult.StreamFinished = finished
+
+
+
+	codec := GetCodec("JSON")
+	var err error
+	aursirResult.Result, err = codec.Encode(Result)
 
 	if err == nil {
 		eak.iface.out <- aursirResult
