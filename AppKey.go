@@ -5,6 +5,8 @@ import (
 	"sort"
 	"crypto/md5"
 	"encoding/base64"
+	yaml "gopkg.in/yaml.v2"
+
 )
 
 type AppKey struct {
@@ -61,9 +63,16 @@ func HashAppKey(AppKey AppKey) string{
 }
 
 func (AppKey *AppKey) CreateFromJson(JSON string) error {
-		codec := GetCodec("JSON")
-		return codec.Decode([]byte(JSON), AppKey)
+	codec := GetCodec("JSON")
+	return codec.Decode([]byte(JSON), AppKey)
+}
+
+func (AppKey *AppKey) CreateFromYaml(YAML string) (AppKey AppKey) {
+	if yaml.Unmarshal([]byte(YAML),&AppKey) !=nil {
+		panic("Insane Appkey")
 	}
+	return
+}
 
 type Request struct {
 	req      []byte
