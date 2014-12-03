@@ -67,7 +67,7 @@ func (AppKey *AppKey) CreateFromJson(JSON string) error {
 	return codec.Decode([]byte(JSON), AppKey)
 }
 
-func (AppKey *AppKey) CreateFromYaml(YAML string) (AppKey AppKey) {
+func (AppKey *AppKey) CreateFromYaml(YAML string)  {
 	if yaml.Unmarshal([]byte(YAML),&AppKey) !=nil {
 		panic("Insane Appkey")
 	}
