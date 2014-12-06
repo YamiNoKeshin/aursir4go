@@ -3,7 +3,6 @@ package aursir4go
 import (
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/pebbe/zmq4"
-	"log"
 	"net"
 	"strconv"
 	"time"
@@ -23,11 +22,11 @@ type AurSirInterface struct {
 
 	connected chan bool //a connected flag
 
-	exports *map[string]*ExportedAppKey
+	exports map[string]*ExportedAppKey
 
 	exportsSem chan struct{}
 
-	imports *map[string]*ImportedAppKey
+	imports map[string]*ImportedAppKey
 
 	resultChans *map[string]chan Result
 }
@@ -59,12 +58,12 @@ func NewInterface(AppName string) *AurSirInterface {
 	iface.connected = make(chan bool,1)
 	//iface.connected <- false
 	exports := map[string]*ExportedAppKey{}
-	iface.exports = &exports
+	iface.exports = exports
 	iface.exportsSem = make(chan struct{}, 1)
 	iface.exportsSem <- struct{}{}
 
 	imports := map[string]*ImportedAppKey{}
-	iface.imports = &imports
+	iface.imports = imports
 
 	resChans := map[string]chan Result{}
 	iface.resultChans = &resChans
@@ -79,9 +78,9 @@ func NewInterface(AppName string) *AurSirInterface {
 
 //Close shuts down the AurSir interface
 func (iface *AurSirInterface) Close() {
-	log.Println("Closing out channel")
+//	log.Println("Closing out channel")
 	close(iface.out)
-	log.Println("out channel closed")
+//	log.Println("out channel closed")
 
 	for !*iface.quit {
 		time.Sleep(10 * time.Millisecond)
@@ -114,8 +113,7 @@ func (iface *AurSirInterface) AddExport(key AppKey, tags []string) *ExportedAppK
 
 	ak.Request = make(chan AurSirRequest)
 
-	(*iface.exports)[expMsg.ExportId] = &ak
-	log.Println(*iface.exports)
+	iface.exports[expMsg.ExportId] = &ak
 
 	iface.exportsSem <- struct{}{}
 	return &ak
@@ -147,7 +145,7 @@ func (iface *AurSirInterface) AddImport(key AppKey, tags []string) *ImportedAppK
 
 	ak.importId = impMsg.ImportId
 	ak.Connected = impMsg.Exported
-	(*iface.imports)[impMsg.ImportId] = &ak
+	iface.imports[impMsg.ImportId] = &ak
 	return &ak
 }
 
@@ -172,7 +170,7 @@ func (iface *AurSirInterface) backend() {
 
 func (iface *AurSirInterface) sender() {
 
-	log.Println("Opening ougoing ZeroMQ Socket")
+//	log.Println("Opening ougoing ZeroMQ Socket")
 
 	skt, err := zmq4.NewSocket(zmq4.DEALER)
 
@@ -186,7 +184,7 @@ func (iface *AurSirInterface) sender() {
 
 	skt.Connect("tcp://localhost:5555")
 
-	log.Println("Outgoing ZeroMQ Socket open")
+//	log.Println("Outgoing ZeroMQ Socket open")
 
 	for msg := range iface.out {
 
@@ -200,7 +198,7 @@ func (iface *AurSirInterface) sender() {
 			skt.SendMessage([]string{strconv.FormatInt(appmsg.MsgType, 10), appmsg.MsgCodec, string(appmsg.Msg)}, 0)
 		}
 	}
-	log.Println("Sending LEAVE")
+//	log.Println("Sending LEAVE")
 	var lmsg AppMessage
 
 	lmsg.Encode(AurSirLeaveMessage{}, "JSON")
@@ -211,7 +209,7 @@ func (iface *AurSirInterface) sender() {
 
 func (iface *AurSirInterface) listener() {
 
-	log.Println("Opening Incoming ZeroMQ Socket")
+//	log.Println("Opening Incoming ZeroMQ Socket")
 
 	skt, err := zmq4.NewSocket(zmq4.ROUTER)
 
@@ -223,8 +221,8 @@ func (iface *AurSirInterface) listener() {
 
 	skt.Bind("tcp://*:" + strconv.FormatInt(iface.port, 10))
 
-	log.Println("Incoming ZeroMQ Socket open")
-
+//	log.Println("Incoming ZeroMQ Socket open")
+//
 	//skt.SetRcvtimeo(1000)
 
 	for !*iface.quit {
@@ -232,13 +230,13 @@ func (iface *AurSirInterface) listener() {
 		msg, err := skt.RecvMessage(0)
 
 		if err == nil {
-			log.Println("Got incoming message")
+//			log.Println("Got incoming message")
 			iface.processMsg(msg)
 		}
 
 	}
 
-	log.Println("Closing incoming channel")
+//	log.Println("Closing incoming channel")
 
 }
 
@@ -264,8 +262,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 		if err == nil {
 			iumsg, ok := asmsg.(AurSirImportUpdatedMessage)
 			if ok {
-				log.Println(*iface.imports)
-				(*iface.imports)[iumsg.ImportId].Connected = iumsg.Exported
+				iface.imports[iumsg.ImportId].Connected = iumsg.Exported
 			}
 
 		}
@@ -281,8 +278,7 @@ func (iface *AurSirInterface) processMsg(message []string) {
 			if ok {
 				//this could and should be done more elgently
 				<-iface.exportsSem
-				for _, exp := range *iface.exports {
-					log.Println(exp.key.ApplicationKeyName)
+				for _, exp := range iface.exports {
 					if exp.key.ApplicationKeyName == reqmsg.AppKeyName {
 
 						exp.Request <- reqmsg
@@ -367,7 +363,7 @@ func getRandomPort() int64 {
 func generateUuid() string {
 	Uuid, err := uuid.NewV4()
 	if err != nil {
-		log.Fatal("Failed to generate UUID")
+		//log.Fatal("Failed to generate UUID")
 		return ""
 	}
 	return Uuid.String()
