@@ -87,7 +87,7 @@ func (eak ExportedAppKey) Emit(FunctionName string, Result interface{},stream, f
 	aursirResult.AppKeyName = eak.key.ApplicationKeyName
 	aursirResult.Codec = "JSON"
 	aursirResult.CallType = MANY2ONE
-	aursirResult.Uuid = generateUuid()
+	aursirResult.Uuid = ""
 	aursirResult.ExportId = eak.exportId
 	aursirResult.Tags = eak.tags
 	aursirResult.FunctionName = FunctionName
