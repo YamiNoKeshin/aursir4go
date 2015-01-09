@@ -3,17 +3,20 @@ package aursir4go
 import (
 	"errors"
 	"time"
+	"github.com/joernweissenborn/aursir4go/appkey"
+	"github.com/joernweissenborn/aursir4go/messages"
+	"github.com/joernweissenborn/aursir4go/util"
 )
 //An ImportedAppKey represents an applications imports and is used to call and listen to functions and to create
 // callchains
 type ImportedAppKey struct {
 	iface      *AurSirInterface
-	key        AppKey
+	key        appkey.AppKey
 	tags       []string
 	importId   string
 	Connected  bool
 	listenFuns []string
-	listenChan chan Result
+	listenChan chan messages.Result
 	persistenceStrategies map[string] string
 }
 
@@ -30,8 +33,9 @@ func (iak *ImportedAppKey) Name() string {
 //Listen to functions registers the import for listening to this function. Use Listen to get Results for this function.
 func (iak *ImportedAppKey) ListenToFunction(FunctionName string) {
 	listenid := iak.key.ApplicationKeyName + "." + FunctionName
-	iak.iface.registerResultChan(listenid, iak.listenChan)
-	iak.iface.out <- AurSirListenMessage{iak.importId, FunctionName}
+	iak.iface.incomingprocessor.RegisterResultChan(listenid, iak.listenChan)
+	msg, _ := util.GetCodec(iak.iface.codec).Encode(messages.ListenMessage{iak.importId, FunctionName})
+	iak.iface.outgoing.Send(messages.UPDATE_EXPORT,iak.iface.codec,msg)
 	iak.listenFuns = append(iak.listenFuns, listenid)
 }
 
@@ -54,8 +58,8 @@ func (iak *ImportedAppKey) CallFunction(FunctionName string, Arguments interface
 // add a tag, use AddTag.
 func (iak *ImportedAppKey) UpdateTags(NewTags []string) {
 	iak.tags = NewTags
-	iak.iface.out <- AurSirUpdateImportMessage{iak.importId, iak.tags}
-}
+	msg, _ := util.GetCodec(iak.iface.codec).Encode(messages.UpdateExportMessage{iak.importId, iak.tags})
+	iak.iface.outgoing.Send(messages.UPDATE_IMPORT,iak.iface.codec,msg)	}
 
 //AddTag adds a tag to the imports tags and registers the new tagset at the runtime. If you want to set a new tagset,
 // use UpdateTags
@@ -63,62 +67,7 @@ func (iak *ImportedAppKey) AddTag(Tag string) {
 	iak.UpdateTags(append(iak.tags,Tag))
 }
 
-func (iak *ImportedAppKey) NewCallChain(OriginFunctionName string, Arguments interface{}, OriginCallType int64) (CallChain, error) {
-	if OriginCallType > 3 {
-		return CallChain{}, errors.New("Invalid calltype")
-	}
 
-	codec := GetCodec("JSON")
-	args, err := codec.Encode(Arguments)
-	if err != nil {
-		return CallChain{}, err
-	}
-
-	cc := createCallChain(iak.iface)
-	cc.setOrigin(iak.key.ApplicationKeyName, OriginFunctionName, "JSON", &args, iak.Tags(), OriginCallType, iak.importId)
-	return cc, nil
-
-}
-
-func (iak *ImportedAppKey) FinalizeCallChain(FunctionName string, ArgumentMap map[string]string, CallType int64, CallChain CallChain) (chan Result, error) {
-	if CallType > 3 {
-		return nil, errors.New("Invalid calltype")
-	}
-
-	reqUuid := generateUuid()
-	fcc := ChainCall{
-		iak.key.ApplicationKeyName,
-		FunctionName,
-		ArgumentMap,
-		CallType,
-		iak.Tags(),
-		reqUuid}
-	CallChain.finalImportId = iak.importId
-	CallChain.finalCall = fcc
-	err := CallChain.Finalize()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var resChan chan Result
-	if CallType == ONE2ONE || CallType == ONE2MANY {
-		resChan = make(chan Result)
-		iak.iface.registerResultChan(reqUuid, resChan)
-	}
-
-	return resChan, nil
-}
-
-//SetLogging sets the persitence strategy for function calls of the specified function to "log". This overrides all previous
-// persitence strategies!
-func (iak *ImportedAppKey) SetLogging(FunctionName string){
-	iak.persistenceStrategies[FunctionName] = "log"
-}
-
-func (iak *ImportedAppKey) PersistentCallFunction(FunctionName string, Arguments interface{}, CallType int64) (chan Result, error) {
-	return iak.callFunction(FunctionName,Arguments,CallType, true)
-}
 func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface{}, CallType int64, Persist bool) (chan Result, error) {
 
 	if CallType > 3 {
@@ -137,27 +86,28 @@ func (iak *ImportedAppKey) callFunction(FunctionName string, Arguments interface
 
 	reqUuid := generateUuid()
 
-	iak.iface.out <- AurSirRequest{
+	req := messages.Request{
 		iak.key.ApplicationKeyName,
 		FunctionName,
 		CallType,
 		iak.tags,
 		reqUuid,
 		iak.importId,
+		"",
 		time.Now(),
 		"JSON",
-		false,
-		Persist,
-		"",
 		args,
 		false,
 		false,
 	}
 
-	var resChan chan Result
+	msg, _ := util.GetCodec(iak.iface.codec).Encode(req)
+	iak.iface.outgoing.Send(messages.UPDATE_IMPORT,iak.iface.codec,msg)
+
+	var resChan chan messages.Result
 	if CallType == ONE2ONE || CallType == ONE2MANY {
-		resChan = make(chan Result)
-		iak.iface.registerResultChan(reqUuid, resChan)
+		resChan = make(chan messages.Result)
+		iak.iface.incomingprocessor.RegisterResultChan(reqUuid, resChan)
 	}
 
 	return resChan, nil

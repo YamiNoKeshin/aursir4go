@@ -1,9 +1,8 @@
-package aursir4go
+package util
 
 import (
 	"encoding/json"
 	"io/ioutil"
-	"errors"
 	"github.com/vmihailenco/msgpack"
 	"github.com/ugorji/go/codec"
 	"bytes"
@@ -30,22 +29,6 @@ func GetCodec(codec string) AurSirCodec {
 }
 
 
-func (asr AurSirRequest) Decode(target interface{}) error {
-
-	codec := GetCodec(asr.Codec)
-	if codec == nil {
-		return errors.New("Unknown codec "+asr.Codec)
-	}
-
-	if asr.IsFile {
-		return codec.DecodeFile(string(asr.Request),&target)
-	}
-
-	return codec.Decode(asr.Request, &target)
-}
-
-
-
 type codecJson struct{}
 
 func (codecJson) Encode(i interface{}) ([]byte, error) {
@@ -67,16 +50,6 @@ func (codecJson) DecodeFile(filename string , t interface{}) error {
 }
 
 
-func (appMsg *AppMessage) Encode(msg AurSirMessage, codec string) error {
-
-	appMsg.MsgType = msg2cmd(msg)
-	appMsg.MsgCodec = codec
-	c := GetCodec(codec)
-	var err error
-	appMsg.Msg, err = c.Encode(msg)
-	return err
-
-}
 
 type codecMsgpack struct{}
 

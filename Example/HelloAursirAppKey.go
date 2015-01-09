@@ -1,16 +1,18 @@
 package aursir4go
 
-var HelloAurSirAppKey = AppKey{
+import "github.com/joernweissenborn/aursir4go/appkey"
+
+var HelloAurSirAppKey = appkey.AppKey{
 	"org.aursir.helloaursir",
-	[]Function{
-		Function{
+	[]appkey.Function{
+		appkey.Function{
 			"SayHello",
-			[]Data{
-				Data{
+			[]appkey.Data{
+				appkey.Data{
 					"Greeting",
 					STRING}},
-			[]Data{
-				Data{
+			[]appkey.Data{
+				appkey.Data{
 					"Answer",
 					STRING}}}}}
 
