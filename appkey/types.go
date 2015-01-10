@@ -1,4 +1,4 @@
-package aursir4go
+package appkey
 
 const (
 	BINARY = iota

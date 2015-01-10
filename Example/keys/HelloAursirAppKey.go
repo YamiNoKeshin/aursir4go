@@ -1,4 +1,4 @@
-package aursir4go
+package main
 
 import "github.com/joernweissenborn/aursir4go/appkey"
 
@@ -10,11 +10,11 @@ var HelloAurSirAppKey = appkey.AppKey{
 			[]appkey.Data{
 				appkey.Data{
 					"Greeting",
-					STRING}},
+					appkey.STRING}},
 			[]appkey.Data{
 				appkey.Data{
 					"Answer",
-					STRING}}}}}
+					appkey.STRING}}}}}
 
 type SayHelloReq struct {
 	Greeting string
