@@ -32,6 +32,7 @@ const (
 type DockMessage struct {
 	AppName string
 	Codecs []string
+	Node bool
 }
 
 //An DockMessage indicates that an app is sucessfully registered
@@ -46,6 +47,7 @@ type LeaveMessage struct{}
 type AddImportMessage struct {
 	AppKey appkey.AppKey
 	Tags   []string
+	ImportId string
 }
 
 //An UpdateImportMessage contains the import id and the new tag set
@@ -70,6 +72,7 @@ type ImportUpdatedMessage struct {
 type AddExportMessage struct {
 	AppKey appkey.AppKey
 	Tags   []string
+	ExportId string
 }
 
 //An ExportAddedMessage contains the export id

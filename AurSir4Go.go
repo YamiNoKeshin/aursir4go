@@ -87,7 +87,7 @@ func (iface *AurSirInterface) AddExport(key appkey.AppKey, tags []string) *Expor
 	ak.key = key
 	ak.tags = tags
 
-	expReq := messages.AddExportMessage{key, tags}
+	expReq := messages.AddExportMessage{key, tags,""}
 
 	msg, _ := util.GetCodec(iface.codec).Encode(expReq)
 	iface.outgoing.Send(messages.ADD_EXPORT,iface.codec,msg)
@@ -115,7 +115,7 @@ func (iface *AurSirInterface) AddImport(key appkey.AppKey, tags []string) *Impor
 
 	ak.listenChan = make(chan messages.Result)
 
-	impReq := messages.AddImportMessage{key, tags}
+	impReq := messages.AddImportMessage{key, tags,""}
 	msg, _ := util.GetCodec(iface.codec).Encode(impReq)
 	iface.outgoing.Send(messages.ADD_IMPORT,iface.codec,msg)
 
@@ -150,7 +150,7 @@ func (iface AurSirInterface) WaitUntilDocked()  {
 	return
 }
 func (iface AurSirInterface) getdockmsg() messages.DockMessage {
-	return messages.DockMessage{iface.AppName,[]string{"MSGPACK","JSON"}}
+	return messages.DockMessage{iface.AppName,[]string{"MSGPACK","JSON"},false}
 }
 
 
