@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"github.com/joernweissenborn/aursir4go/internal/dock"
 	"github.com/joernweissenborn/aursir4go/internal"
+	"log"
 )
 
 type IncomingZmq struct {
@@ -16,6 +17,7 @@ type IncomingZmq struct {
 
 func (izmq IncomingZmq) Activate(proc *internal.Incomingprocessor) (outgoing dock.Outgoing ,err error){
 	izmq.port = getRandomPort()
+	izmq.proc = proc
 	izmq.skt, err = zmq4.NewSocket(zmq4.ROUTER)
 	if err != nil {
 		return
@@ -25,11 +27,15 @@ func (izmq IncomingZmq) Activate(proc *internal.Incomingprocessor) (outgoing doc
 	if err != nil {
 		return
 	}
-	outgoing = izmq.GetOutgoing()
+	o:= izmq.GetOutgoing()
+
+	outgoing = &o
 	go izmq.listener()
 	return
 }
-func (IncomingZmq) Deactivate()
+func (IncomingZmq) Deactivate() {
+	//TODO Deactivate interface
+}
 func (izmq IncomingZmq) GetOutgoing() OutgoingZmq {
 	return OutgoingZmq{nil, izmq.port}
 }
@@ -53,7 +59,7 @@ func (izmq IncomingZmq) listener() {
 	for {
 
 		msg, err := izmq.skt.RecvMessage(0)
-
+		                   log.Println(msg)
 		if err == nil {
 			msgtype, _ := strconv.ParseInt(msg[1], 10, 64)
 			codec := msg[2]

@@ -58,8 +58,6 @@ type UpdateImportMessage struct {
 type ImportAddedMessage struct {
 	ImportId   string
 	Exported   bool
-	AppKeyName string
-	Tags       []string
 }
 
 //An ImportAddedMessage contains the import id and a bool flag to indicate if an exporter is connected

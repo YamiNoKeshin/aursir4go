@@ -17,6 +17,12 @@ type ExportedAppKey struct {
 	Request  chan messages.Request
 }
 
+//Tags returns the exports id.
+func (eak ExportedAppKey) GetId() string {
+	return eak.exportId
+}
+
+
 //Tags returns the exports current tags.
 func (eak ExportedAppKey) Tags() []string {
 	return eak.tags

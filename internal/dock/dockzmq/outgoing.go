@@ -11,17 +11,14 @@ type OutgoingZmq struct {
 	port int64
 }
 
-func (ozmq OutgoingZmq) Activate(id string,) (err error){
+func (ozmq *OutgoingZmq) Activate(id string,) (err error){
 	ozmq.skt, err = zmq4.NewSocket(zmq4.DEALER)
 	if err != nil {
 		return
 	}
 	ozmq.skt.SetIdentity(id)
 	err = ozmq.skt.Connect("tcp://localhost:5555")
-	if err != nil {
-		return
-	}
-	go izmq.listener()
+
 	return
 }
 func (ozmq OutgoingZmq)Send(msgtype int64, codec string,msg []byte) (err error){

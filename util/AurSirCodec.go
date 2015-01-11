@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"io/ioutil"
-	"github.com/vmihailenco/msgpack"
+	msgpack "gopkg.in/vmihailenco/msgpack.v2"
 	"github.com/ugorji/go/codec"
 	"bytes"
 )

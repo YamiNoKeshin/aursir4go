@@ -1,4 +1,4 @@
-package main
+package keys
 
 import "github.com/joernweissenborn/aursir4go/appkey"
 

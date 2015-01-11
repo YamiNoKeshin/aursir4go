@@ -1,4 +1,4 @@
-package aursir4go
+package calltypes
 
 const (
 	ONE2ONE   = iota
