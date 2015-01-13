@@ -26,6 +26,8 @@ const (
 	IMPORT_UPDATED
 	LISTEN
 	STOP_LISTEN
+	REMOVE_EXPORT
+	REMOVE_IMPORT
 )
 
 //An DockMessage indicates that an app wants to registered at the engine
@@ -67,6 +69,10 @@ type ImportUpdatedMessage struct {
 	ImportId string
 	Exported bool
 }
+//An RemoveImportMessage contains the import id
+type RemoveImportMessage struct {
+	ImportId string
+}
 
 //An AddExportMessage contains the respective AppKey struct and a slice with tags
 type AddExportMessage struct {
@@ -84,6 +90,11 @@ type ExportAddedMessage struct {
 type UpdateExportMessage struct {
 	ExportId string
 	Tags     []string
+}
+
+//An RemoveExportMessage contains
+type RemoveExportMessage struct {
+	ExportId string
 }
 
 //An ListenMessage contains the import id and the function name.
