@@ -62,6 +62,8 @@ type UpdateImportMessage struct {
 type ImportAddedMessage struct {
 	ImportId   string
 	Exported   bool
+	AppKey appkey.AppKey
+	Tags   []string
 }
 
 //An ImportAddedMessage contains the import id and a bool flag to indicate if an exporter is connected
@@ -84,6 +86,8 @@ type AddExportMessage struct {
 //An ExportAddedMessage contains the export id
 type ExportAddedMessage struct {
 	ExportId string
+	AppKey appkey.AppKey
+	Tags   []string
 }
 
 //An UpdateExportMessage contains the export id and the new tag set
