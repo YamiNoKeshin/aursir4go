@@ -7,6 +7,8 @@ import (
 	"github.com/joernweissenborn/aursir4go/internal/dock"
 	"github.com/joernweissenborn/aursir4go/internal"
 	"log"
+	"time"
+	"fmt"
 )
 
 type IncomingZmq struct {
@@ -31,13 +33,14 @@ func (izmq IncomingZmq) Activate(proc *internal.Incomingprocessor) (outgoing doc
 
 	outgoing = &o
 	go izmq.listener()
-	return
+
+		return
 }
 func (IncomingZmq) Deactivate() {
 	//TODO Deactivate interface
 }
 func (izmq IncomingZmq) GetOutgoing() OutgoingZmq {
-	return OutgoingZmq{nil, izmq.port}
+	return OutgoingZmq{nil, izmq.port,nil}
 }
 
 
@@ -70,5 +73,37 @@ func (izmq IncomingZmq) listener() {
 
 	}
 
+
+}
+
+func pingUdp(UUID string, kill chan struct {}) {
+
+	var pingtime = 1 * time.Second
+
+	localAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:0","127.0.0.1"))
+	if err != nil {
+		log.Fatal("DOCKERZMQ", err)
+	}
+	serverAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5557")
+
+	if err != nil {
+		log.Fatal("DOCKERZMQ", err)
+	}
+	con, err := net.DialUDP("udp", localAddr, serverAddr)
+	if err != nil {
+		log.Fatal("DOCKERZMQ", err)
+	}
+	t := time.NewTimer(pingtime)
+	fmt.Println(fmt.Sprintf("Beginning UDP Broadcast with %s",UUID))
+	for {
+		select {
+		case <-kill:
+			return
+
+		case <-t.C:
+			con.Write([]byte(fmt.Sprintf("%s", UUID)))
+			t.Reset(pingtime)
+		}
+	}
 
 }
