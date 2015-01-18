@@ -40,7 +40,7 @@ func (IncomingZmq) Deactivate() {
 	//TODO Deactivate interface
 }
 func (izmq IncomingZmq) GetOutgoing() OutgoingZmq {
-	return OutgoingZmq{nil, izmq.port,nil}
+	return OutgoingZmq{nil, izmq.port,nil,""}
 }
 
 

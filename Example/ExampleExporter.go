@@ -4,6 +4,8 @@ import (
 	"github.com/joernweissenborn/aursir4go"
 	_ "log"
 	"github.com/joernweissenborn/aursir4go/Example/keys"
+	"fmt"
+	"os"
 )
 
 func main(){
@@ -22,7 +24,9 @@ func main(){
 // t",sayhelloreq.Greeting)
 //		exp.Reply(&r,aursir4go.SayHelloRes{"MOINSEN, you said"+sayhelloreq.Greeting})
 //	}
+	fmt.Println(	os.Getenv("AURSIR_RT_IP"))
+	fmt.Println("Waiting for rt")
 	iface.WaitUntilDocked()
 	iface.Close()
-
+	fmt.Println("done")
 }
