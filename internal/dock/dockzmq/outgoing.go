@@ -24,7 +24,7 @@ func (ozmq *OutgoingZmq) Activate(id string,) (err error){
 		return
 	}
 	ip := "127.0.0.1"
-	ozmq.myip = "172.17.42.1"
+	ozmq.myip = "127.0.0.1"
 	if envip := os.Getenv("AURSIR_RT_PORT"); envip != "" {
 		ip = strings.SplitAfterN(strings.Split(envip,":")[1],"",3)[2]
 		myip, err := net.ResolveIPAddr("ip4",os.Getenv("HOSTNAME"))
