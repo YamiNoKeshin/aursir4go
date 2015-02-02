@@ -4,29 +4,41 @@ import (
 	"github.com/joernweissenborn/aursir4go"
 	_ "log"
 	"github.com/joernweissenborn/aursir4go/Example/keys"
-	"fmt"
-	"os"
+	"log"
+	"github.com/joernweissenborn/aursir4go/calltypes"
 )
 
 func main(){
-	//defer profile.Start(profile.CPUProfile).Stop()
 
-	iface, _:=aursir4go.NewInterface("testex")
-	iface.AddExport(keys.HelloAurSirAppKey, nil)
+	iface, err := aursir4go.NewInterface("ExampleImporter")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Docking to runtime...")
 
-
-	//	exp := iface.AddExport(aursir4go.HelloAurSirAppKey,[]string{})
-//
-//	for r := range exp.Request {
-//		var sayhelloreq aursir4go.SayHelloReq
-//		r.Decode(&sayhelloreq)
-//		log.Println("Gox
-// t",sayhelloreq.Greeting)
-//		exp.Reply(&r,aursir4go.SayHelloRes{"MOINSEN, you said"+sayhelloreq.Greeting})
-//	}
-	fmt.Println(	os.Getenv("AURSIR_RT_IP"))
-	fmt.Println("Waiting for rt")
 	iface.WaitUntilDocked()
+
+	log.Println("...Done")
+
+
+	imp := iface.AddImport(keys.HelloAurSirAppKey, []string{})
+
+	sayhelloreq := keys.SayHelloReq{"Hello AurSir"}
+	log.Println("Sending 'Hello AurSir'")
+
+	request, err := imp.CallFunction("SayHello",sayhelloreq,calltypes.ONE2ONE)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := <-request
+
+	var answer keys.SayHelloRes
+	err = result.Decode(&answer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Got answer:",answer.Answer)
+
 	iface.Close()
-	fmt.Println("done")
 }

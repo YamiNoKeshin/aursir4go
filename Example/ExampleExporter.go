@@ -4,29 +4,27 @@ import (
 	"github.com/joernweissenborn/aursir4go"
 	_ "log"
 	"github.com/joernweissenborn/aursir4go/Example/keys"
-	"fmt"
-	"os"
+	"log"
 )
 
 func main(){
-	//defer profile.Start(profile.CPUProfile).Stop()
+	iface, err := aursir4go.NewInterface("ExampleExporter")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Docking to runtime...")
 
-	iface, _:=aursir4go.NewInterface("testex")
-	iface.AddExport(keys.HelloAurSirAppKey, nil)
-
-
-	//	exp := iface.AddExport(aursir4go.HelloAurSirAppKey,[]string{})
-//
-//	for r := range exp.Request {
-//		var sayhelloreq aursir4go.SayHelloReq
-//		r.Decode(&sayhelloreq)
-//		log.Println("Gox
-// t",sayhelloreq.Greeting)
-//		exp.Reply(&r,aursir4go.SayHelloRes{"MOINSEN, you said"+sayhelloreq.Greeting})
-//	}
-	fmt.Println(	os.Getenv("AURSIR_RT_IP"))
-	fmt.Println("Waiting for rt")
 	iface.WaitUntilDocked()
-	iface.Close()
-	fmt.Println("done")
+
+	log.Println("...Done")
+
+	exp := iface.AddExport(keys.HelloAurSirAppKey, []string{"Tag1", "Tag2"})
+
+	for request := range exp.Request {
+		var sayhelloreq keys.SayHelloReq
+		request.Decode(&sayhelloreq)
+		log.Println("Got greeting:",sayhelloreq.Greeting)
+		exp.Reply(&request,keys.SayHelloRes{"Greetings back from AurSir4Go!"})
+
+	}
 }
