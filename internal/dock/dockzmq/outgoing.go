@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"os"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 )
@@ -41,7 +40,7 @@ func (ozmq *OutgoingZmq) Activate(id string,) (err error){
 		ozmq.myip = myip.IP.String()
 
 	}
-	log.Println("ASIp",ip)
+	//log.Println("ASIp",ip)
 	ozmq.skt.SetIdentity(id)
 	err = ozmq.skt.Connect(fmt.Sprintf("tcp://%s:5555",ip))
 	ozmq.kill = make(chan struct {})

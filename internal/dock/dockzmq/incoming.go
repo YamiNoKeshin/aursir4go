@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"github.com/joernweissenborn/aursir4go/internal/dock"
 	"github.com/joernweissenborn/aursir4go/internal"
-	"log"
 	"time"
 	"fmt"
 )
@@ -62,7 +61,7 @@ func (izmq IncomingZmq) listener() {
 	for {
 
 		msg, err := izmq.skt.RecvMessage(0)
-		                   log.Println(msg)
+		                   //log.Println(msg)
 		if err == nil {
 			msgtype, _ := strconv.ParseInt(msg[1], 10, 64)
 			codec := msg[2]
@@ -82,16 +81,16 @@ func pingUdp(UUID string, kill chan struct {}) {
 
 	localAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:0","127.0.0.1"))
 	if err != nil {
-		log.Fatal("DOCKERZMQ", err)
+		panic(err)
 	}
 	serverAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5557")
 
 	if err != nil {
-		log.Fatal("DOCKERZMQ", err)
+		panic(err)
 	}
 	con, err := net.DialUDP("udp", localAddr, serverAddr)
 	if err != nil {
-		log.Fatal("DOCKERZMQ", err)
+		panic(err)
 	}
 	t := time.NewTimer(pingtime)
 	fmt.Println(fmt.Sprintf("Beginning UDP Broadcast with %s",UUID))
