@@ -113,7 +113,7 @@ type StopListenMessage struct {
 	FunctionName string
 }
 
-//An Request contains the AppKey's name together with the respective Function name. The
+//A Request contains the AppKey's name together with the respective Function name. The
 type Request struct {
 	AppKeyName   string
 	FunctionName string
