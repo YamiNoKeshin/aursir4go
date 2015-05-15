@@ -93,7 +93,7 @@ func pingUdp(UUID string, kill chan struct {}) {
 		panic(err)
 	}
 	t := time.NewTimer(pingtime)
-	fmt.Println(fmt.Sprintf("Beginning UDP Broadcast with %s",UUID))
+//	fmt.Println(fmt.Sprintf("Beginning UDP Broadcast with %s",UUID))
 	for {
 		select {
 		case <-kill:

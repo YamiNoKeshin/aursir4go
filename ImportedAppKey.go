@@ -46,18 +46,43 @@ func (iak *ImportedAppKey) Exported() (exported bool) {
 //Listen to functions registers the import for listening to this function. Use Listen to get Results for this function.
 func (iak *ImportedAppKey) ListenToFunction(FunctionName string) {
 	listenid := iak.key.ApplicationKeyName + "." + FunctionName
-	iak.iface.incomingprocessor.RegisterResultChan(listenid, iak.listenChan)
 	msg, _ := util.GetCodec(iak.iface.codec).Encode(messages.ListenMessage{iak.importId, FunctionName})
 	iak.iface.outgoing.Send(messages.LISTEN,iak.iface.codec,msg)
 	iak.listenFuns = append(iak.listenFuns, listenid)
 }
 
+//GetListenChannel returns the imports listen channel.
+func (iak *ImportedAppKey) GetListenChannel() (ListenChannel chan messages.Result) {
+	ListenChannel = iak.listenChan
+	return
+}
+
 //Listen listens for results on listened functions. If no listen functions have been added, it returns an empty result Result.
 func (iak *ImportedAppKey) Listen() messages.Result {
-	if len(iak.listenFuns) == 0 {
-		return messages.Result{}
-	}
 	return <-iak.listenChan
+}
+
+//Call requests the function specified by FunctionName as ONE2ONE request and returns a channel to get the result.
+func (iak *ImportedAppKey) Call(FunctionName string, Arguments interface{}) (chan messages.Result, error) {
+	return iak.callFunction(FunctionName,Arguments,calltypes.ONE2ONE)
+}
+//CallAll requests the function specified by FunctionName as ONE2MANY request. Get the results via Listen() or the 
+// ListenChannel.
+func (iak *ImportedAppKey) CallAll(FunctionName string, Arguments interface{}) (err error) {
+	_, err = iak.callFunction(FunctionName,Arguments,calltypes.ONE2MANY)
+	return
+}
+//Trigger requests the function specified by FunctionName as MANY2ONE request. Get the results via Listen() or the 
+// ListenChannel.
+func (iak *ImportedAppKey) Trigger(FunctionName string, Arguments interface{}) (err error) {
+	_, err = iak.callFunction(FunctionName,Arguments,calltypes.MANY2ONE)
+	return
+}
+//TriggerAll requests the function specified by FunctionName as MANY2MANY request. Get the results via Listen() or the 
+// ListenChannel.
+func (iak *ImportedAppKey) TriggerAll(FunctionName string, Arguments interface{}) (err error) {
+	_, err = iak.callFunction(FunctionName,Arguments,calltypes.MANY2MANY)
+	return
 }
 
 //Call functions calls the function specified by FunctionName and returns a channel to get the result. This channel we
