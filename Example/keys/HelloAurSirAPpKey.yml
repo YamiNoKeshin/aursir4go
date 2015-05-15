@@ -1,0 +1,10 @@
+applicationkeyname: org.aursir.helloaursir
+
+functions:
+  - name: SayHello
+    input:
+      - name: Greeting
+        type: 1
+    - output:
+      - name: Answer
+        type: 1

@@ -114,12 +114,13 @@ func (iface *AurSirInterface) AddImport(key appkey.AppKey, tags []string) *Impor
 	ak.tags = tags
 
 	ak.listenChan = make(chan messages.Result)
-
 	impReq := messages.AddImportMessage{key, tags,""}
 	msg, _ := util.GetCodec(iface.codec).Encode(impReq)
 	iface.outgoing.Send(messages.ADD_IMPORT,iface.codec,msg)
 
 	ak.importId = <-iface.incomingprocessor.AddImport
+
+	iface.incomingprocessor.RegisterResultChan(ak.importId,ak.listenChan)
 	ak.connected = iface.incomingprocessor.ExportedChans[ak.importId]
 	iface.imports[ak.importId] = &ak
 	return &ak
