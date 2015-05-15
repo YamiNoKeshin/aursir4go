@@ -3,7 +3,7 @@ package aurarath
 import (
 	"github.com/joernweissenborn/stream2go"
 	"log"
-	"github.com/nu7hatch/gouuid"
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 
@@ -25,12 +25,13 @@ func NewNode() (n Node){
 }
 
 func (n Node) NewPeers() stream2go.Stream{
-	return n.newPeers
+	return n.newPeers.Stream
+
 }
 
 
 func (n Node) LeavingPeers() stream2go.Stream{
-	return n.leavingPeers
+	return n.leavingPeers.Stream
 }
 
 
@@ -38,7 +39,7 @@ func (n Node) LeavingPeers() stream2go.Stream{
 func (n Node) RegisterImplementation(i Implementation){
 	n.newPeers.Join(i.NewPeers())
 	n.leavingPeers.Join(i.NewPeers())
-	n.out.Where(i.IsProtocol).Listen(i.Send)
+	n.out.Where(i.Responsible).Listen(i.Send)
 	n.in.Join(i.In())
 }
 
@@ -46,7 +47,7 @@ func (n Node) RegisterImplementation(i Implementation){
 
 
 func generateUuid() string {
-	Uuid, err := gouuid.NewV4()
+	Uuid, err := uuid.NewV4()
 	if err != nil {
 		log.Fatal("Failed to generate UUID")
 		return ""

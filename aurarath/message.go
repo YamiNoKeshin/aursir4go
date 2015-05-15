@@ -3,7 +3,9 @@ package aurarath
 import "bytes"
 
 type Message struct {
-	Protocol int8
+	Sender Address
+	Protocol uint8
+	Type uint8
 	Payloads []Payload
 }
 
@@ -14,16 +16,7 @@ func (m *Message) Pop(target interface {})  {
 }
 
 type Payload struct {
-	Codec string
+	Codec uint8
 	Bytes *bytes.Buffer
 }
 
-type IncomingMessage struct {
-	Message
-	Sender Address
-}
-
-type OutgoingMessage struct {
-	Message
-	Receiver Address
-}

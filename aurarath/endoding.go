@@ -2,5 +2,12 @@ package aurarath
 
 import "bytes"
 
-func decode(s *bytes.Buffer, t interface {}, codec string)
-func encode(t interface {}, *bytes.Buffer)
+const (
+	BIN uint8 = iota
+	JSON uint8
+)
+
+func decode(s *bytes.Buffer, t interface {}, codec string){}
+func encode(interface {}) (b *bytes.Buffer) {
+	return
+}

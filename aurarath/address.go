@@ -1,11 +1,10 @@
 package aurarath
 
 type Address struct {
-	Id string
 
 	Implementation string
 
-	Codecs []string
+	Codecs []uint8
 
 	Details interface {}
 }

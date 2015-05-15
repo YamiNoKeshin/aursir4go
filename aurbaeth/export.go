@@ -9,11 +9,10 @@ type AurBaethExport interface {
 	Id() string
 
 	Remove()
+
 	UpdateTags([]string)
 
-	Request() AurBaethRequest
-	RequestStream()  stream2go.Stream
-	RequestChan(function string) (request chan AurBaethRequest)
+	ExportFunction(function string) stream2go.Stream
 
 	Emit(function string, parameter interface {})
 }
