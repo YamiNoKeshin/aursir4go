@@ -3,12 +3,13 @@ package zaurarath
 import (
 	"net"
 	"github.com/pebbe/zmq4"
-	"strconv"
+
 	"github.com/joernweissenborn/stream2go"
+	"fmt"
 )
 
 type Incoming struct {
-	port uint8
+	port uint16
 	skt *zmq4.Socket
 	in stream2go.StreamController
 }
@@ -26,17 +27,17 @@ func (i *Incoming) setupSocket() (err error){
 		return
 	}
 
-	err = i.skt.Bind("tcp://*:" + strconv.FormatInt(i.port, 10))
+	err = i.skt.Bind(fmt.Sprintf("tcp://*:%d",i.port))
 		return
 }
 
-func getRandomPort() int64 {
+func getRandomPort() uint16 {
 	l, err := net.Listen("tcp", "127.0.0.1:0") // listen on localhost
 	if err != nil {
 		panic("Could not find a free port")
 	}
 	defer l.Close()
-	return int64(l.Addr().(*net.TCPAddr).Port)
+	return uint16(l.Addr().(*net.TCPAddr).Port)
 }
 
 

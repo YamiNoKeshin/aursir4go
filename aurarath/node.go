@@ -39,8 +39,6 @@ func (n Node) LeavingPeers() stream2go.Stream{
 func (n Node) RegisterImplementation(i Implementation){
 	n.newPeers.Join(i.NewPeers())
 	n.leavingPeers.Join(i.NewPeers())
-	n.out.Where(i.Responsible).Listen(i.Send)
-	n.in.Join(i.In())
 }
 
 

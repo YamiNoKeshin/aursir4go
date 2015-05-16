@@ -89,17 +89,14 @@ func (b Beacon) Run(){
 }
 
 
-func (b Beacon) SetAutoTrack(track bool){
-
-}
-
 func (b Beacon) Listen(){
 
-	data := make([]byte, 4096)
 
 	for {
+		data := make([]byte, 1024)
 		read, remoteAddr, _ := b.listensock.ReadFromUDP(data)
-		b.in.Add(Signal{remoteAddr.String(),data[:read]})
+
+		b.in.Add(Signal{remoteAddr.IP.String(),data[:read]})
 	}
 
 }

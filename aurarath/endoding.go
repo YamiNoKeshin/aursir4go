@@ -4,7 +4,7 @@ import "bytes"
 
 const (
 	BIN uint8 = iota
-	JSON uint8
+	JSON
 )
 
 func decode(s *bytes.Buffer, t interface {}, codec string){}

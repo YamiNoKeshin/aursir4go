@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"github.com/joernweissenborn/stream2go"
+	"net"
+	"encoding/binary"
 )
 
 func outlistener(d interface {}) {
@@ -17,7 +19,7 @@ type Outgoing struct {
 	ipportbytes []byte
 }
 
-func NewOutgoing(home aurarath.Address, target aurarath.Address) (out stream2go.StreamController, err error){
+func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.StreamController, err error){
 	var o Outgoing
 	o.skt, err = zmq4.NewSocket(zmq4.DEALER)
 	if err != nil {
@@ -26,12 +28,20 @@ func NewOutgoing(home aurarath.Address, target aurarath.Address) (out stream2go.
 
 
 	//log.Println("ASIp",ip)
-	o.skt.SetIdentity(home.Id)
+	o.skt.SetIdentity(string(home.Id))
 	targetdetails := target.Details.(Details)
-	err = o.skt.Connect(fmt.Sprintf("tcp://%s:5555",targetdetails.Ip.String(),targetdetails.Port))
+	Ip := net.IPv4(uint8(targetdetails.Ip[0]),uint8(targetdetails.Ip[1]),uint8(targetdetails.Ip[2]),uint8(targetdetails.Ip[3]))
+	err = o.skt.Connect(fmt.Sprintf("tcp://%s:%d",Ip.String(),targetdetails.Port))
 
-	homedetails := home.Details.(Details)
-	o.ipportbytes = append(homedetails.Ip, []byte{homedetails.Port})
+	homedetails, f := FindBestAddress(home,target)
+	if !f {
+		return
+	}
+	bp := make([]byte, 2)
+	binary.LittleEndian.PutUint16(bp, uint16(homedetails.Details.(Details).Port))
+	for _, b := range bp {
+		o.ipportbytes = append(homedetails.Details.(Details).Ip, b)
+	}
 	out = stream2go.New()
 	out.Stream.Listen(o.send)
 	out.Stream.Closed.Then(o.Close)

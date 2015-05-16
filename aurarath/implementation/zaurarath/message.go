@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"net"
+	"encoding/binary"
 )
 
 // Message
@@ -63,20 +64,23 @@ func ToIncomingMessage(d interface {}) interface {}{
 	data, _ := d.([][]byte)
 
 	var msg aurarath.Message
+	var peer aurarath.Peer
+	peer.Id = data[0]
 	var address aurarath.Address
-	address.Id = string(data[0])
 	address.Implementation = IMPLEMENTATION_STRING
 	var details Details
 	rawdetails := data[3]
 	details.Ip = net.IPv4(uint8(rawdetails[0]),uint8(rawdetails[1]),uint8(rawdetails[2]),uint8(rawdetails[3]))
-	details.Port = uint16(rawdetails[:4])
-	msg.Sender = details
+	details.Ip = details.Ip[len(details.Ip)-5:]
+	details.Port = binary.LittleEndian.Uint16(rawdetails[:4])
+	address.Details= details
+	msg.Sender = peer
 
-	msg.Protocol = uint8(data[4])
-	msg.Type = uint8(data[5])
+	msg.Protocol = uint8(data[4][0])
+	msg.Type = uint8(data[5][0])
 	msg.Payloads = []aurarath.Payload{}
 	for i := 6; i< len(data);i++ {
-		msg.Payloads = append(msg.Payloads, aurarath.Payload{uint8(data[0]), bytes.NewBuffer(data[1:])})
+		msg.Payloads = append(msg.Payloads, aurarath.Payload{uint8(data[i][0]), bytes.NewBuffer(data[i][1:])})
 	}
 	return msg
 }
@@ -85,10 +89,10 @@ func OutgoingToMessage(d interface {}) interface {}{
 
 	var msg Message
 	msg.raw = [][]byte{
-		[]byte(byte(PROTOCOLL_SIGNATURE)),
-		[]byte(byte(PROTOCOLL_MAJOR),byte(PROTOCOLL_MINOR)),
+		[]byte{byte(PROTOCOLL_SIGNATURE)},
+		[]byte{byte(PROTOCOLL_MAJOR),byte(PROTOCOLL_MINOR)},
 		[]byte{},
-		m.Protocol,
+		[]byte{byte(m.Protocol)},
 	}
 
 	for _,pl := range m.Payloads {
