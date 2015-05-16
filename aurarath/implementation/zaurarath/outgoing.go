@@ -9,10 +9,6 @@ import (
 	"encoding/binary"
 )
 
-func outlistener(d interface {}) {
-
-}
-
 
 type Outgoing struct {
 	skt *zmq4.Socket
@@ -26,8 +22,6 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 		return
 	}
 
-
-	//log.Println("ASIp",ip)
 	o.skt.SetIdentity(string(home.Id))
 	targetdetails := target.Details.(Details)
 	Ip := net.IPv4(uint8(targetdetails.Ip[0]),uint8(targetdetails.Ip[1]),uint8(targetdetails.Ip[2]),uint8(targetdetails.Ip[3]))
@@ -39,8 +33,9 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 	}
 	bp := make([]byte, 2)
 	binary.LittleEndian.PutUint16(bp, uint16(homedetails.Details.(Details).Port))
+	o.ipportbytes = homedetails.Details.(Details).Ip
 	for _, b := range bp {
-		o.ipportbytes = append(homedetails.Details.(Details).Ip, b)
+		o.ipportbytes = append(o.ipportbytes, b)
 	}
 	out = stream2go.New()
 	out.Stream.Listen(o.send)
@@ -50,7 +45,8 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 
 func (o Outgoing)send(d interface {}) (){
 	msg := ToMessage(d).raw
-	msg[3] = o.ipportbytes
+	msg[2] = o.ipportbytes
+
 	o.skt.SendMessage(msg, 0)
 
 	return

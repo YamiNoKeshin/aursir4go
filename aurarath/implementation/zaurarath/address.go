@@ -23,7 +23,8 @@ func FindBestAddress(peer aurarath.Peer, target aurarath.Address) (match aurarat
 	td := target.Details.(Details)
 	for _, addr := range peer.Addresses {
 		ad := addr.Details.(Details)
-		if bytes.Equal(td.Ip[:2],ad.Ip[:2]) {
+
+		if bytes.Equal(td.Ip[:3],ad.Ip[:3]) {
 			return addr,true
 		}
 	}

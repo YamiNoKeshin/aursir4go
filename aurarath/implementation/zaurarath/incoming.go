@@ -18,6 +18,7 @@ type Incoming struct {
 func NewIncoming() (i Incoming, err error){
 	i.in = stream2go.New()
 	err = i.setupSocket()
+	go i.Listen()
 	return
 }
 func (i *Incoming) setupSocket() (err error){
@@ -48,7 +49,6 @@ func (i Incoming) Listen() {
 	for {
 
 		msg, err := i.skt.RecvMessage(0)
-		                   //log.Println(msg)
 		if err == nil {
 			i.in.Add(msg)
 		}

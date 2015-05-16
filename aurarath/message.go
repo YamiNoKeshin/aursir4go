@@ -2,6 +2,10 @@ package aurarath
 
 import "bytes"
 
+func NewMessage(Sender Peer, Protocol uint8 ,Type uint8, Payloads []Payload) Message {
+	return Message{Sender , Protocol ,Type , Payloads}
+}
+
 type Message struct {
 	Sender Peer
 	Protocol uint8

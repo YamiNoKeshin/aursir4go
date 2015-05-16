@@ -30,8 +30,10 @@ type Message struct {
 }
 
 func MessageFromRaw(d interface {}) (m interface {}){
-	data, _ := d.([][]byte)
-
+	data := [][]byte{}
+	for _, di := range d.([]string){
+		data = append(data, []byte(di))
+	}
 	return Message{data}
 }
 
@@ -44,15 +46,18 @@ func MessageOk(d interface {}) bool {
 	if !bytes.Equal(m.raw[1], []byte{byte(PROTOCOLL_SIGNATURE)}){
 		return false
 	}
+
 	if len(m.raw[2]) != 2 {
 		return false
 	}
+
 	if len(m.raw[3]) != 6 {
 		return false
 	}
 	if len(m.raw[4]) != 1 {
 		return false
 	}
+
 	if len(m.raw[5]) != 1 {
 		return false
 	}
@@ -61,7 +66,7 @@ func MessageOk(d interface {}) bool {
 }
 
 func ToIncomingMessage(d interface {}) interface {}{
-	data, _ := d.([][]byte)
+	data:= d.(Message).raw
 
 	var msg aurarath.Message
 	var peer aurarath.Peer
@@ -80,7 +85,10 @@ func ToIncomingMessage(d interface {}) interface {}{
 	msg.Type = uint8(data[5][0])
 	msg.Payloads = []aurarath.Payload{}
 	for i := 6; i< len(data);i++ {
-		msg.Payloads = append(msg.Payloads, aurarath.Payload{uint8(data[i][0]), bytes.NewBuffer(data[i][1:])})
+		if len(data[i]) <= 1 {
+			continue
+		}
+		msg.Payloads = append(msg.Payloads, aurarath.Payload{uint8(data[i][len(data[i])-1]), bytes.NewBuffer(data[i][:len(data[i])-1])})
 	}
 	return msg
 }
@@ -93,11 +101,12 @@ func OutgoingToMessage(d interface {}) interface {}{
 		[]byte{byte(PROTOCOLL_MAJOR),byte(PROTOCOLL_MINOR)},
 		[]byte{},
 		[]byte{byte(m.Protocol)},
+		[]byte{byte(m.Type)},
 	}
 
 	for _,pl := range m.Payloads {
-		msg.raw = append(msg.raw,[]byte{byte(pl.Codec)})
-		msg.raw = append(msg.raw,pl.Bytes.Bytes())
+		load := append(pl.Bytes.Bytes(),byte(pl.Codec))
+		msg.raw = append(msg.raw,load)
 	}
 
 	return msg

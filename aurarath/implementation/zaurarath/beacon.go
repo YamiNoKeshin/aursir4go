@@ -10,7 +10,6 @@ import (
 
 const (
 	BROADCASTADDRESS = "224.0.0.251"
-	BROADCASTPORT = 5556
 )
 
 type Beacon struct {
@@ -19,20 +18,22 @@ type Beacon struct {
 	autotrack bool
 	listensock *net.UDPConn
 	outsocks []*net.UDPConn
-
+	port int
 	in stream2go.StreamController
 }
 
-func NewBeacon(payload []byte) (b Beacon) {
-	b.Setup()
+func NewBeacon(payload []byte, port uint16) (b Beacon) {
 	b.payload = payload
 	b.in = stream2go.New()
+	b.port = int(port)
+	b.Setup()
 	return
 }
 
+
 func (b *Beacon) Setup() {
 	b.kill = make(chan struct{})
-	b.setupBroadcastListener()
+	b.setupBroadcastlistener()
 	b.outsocks= []*net.UDPConn{}
 	Interfaces,_ := net.Interfaces()
 	for _,iface := range Interfaces {
@@ -43,14 +44,16 @@ func (b *Beacon) Setup() {
 
 func (b Beacon) Stop() {
 	b.kill <- struct{}{}
+	b.kill <- struct{}{}
+
 }
 
 
-func (b *Beacon) setupBroadcastListener() (err error) {
+func (b *Beacon) setupBroadcastlistener() (err error) {
 
 	b.listensock, err = net.ListenMulticastUDP("udp4",nil, &net.UDPAddr{
 		IP:   net.IPv4(224, 0, 0, 251),
-		Port: BROADCASTPORT,
+		Port: b.port ,
 	})
 	return
 }
@@ -70,7 +73,7 @@ func (b *Beacon) setupBeacon(Interface net.Interface) (err error) {
 		Port: 0,},
 		&net.UDPAddr{
 		IP:   BROADCAST_IPv4,
-		Port: BROADCASTPORT,
+		Port: b.port ,
 	})
 
 	b.outsocks = append(b.outsocks, socket)
@@ -82,23 +85,37 @@ func (b *Beacon) setupBeacon(Interface net.Interface) (err error) {
 
 
 func (b Beacon) Run(){
-		go b.Listen()
-		for _, s := range b.outsocks {
-			go b.Ping(s)
-		}
+	go b.listen()
+	for _, s := range b.outsocks {
+		go b.Ping(s)
+	}
 }
 
 
-func (b Beacon) Listen(){
+func (b Beacon) listen(){
 
-
+	c := make(chan struct{})
+	go b.getSignal(c)
 	for {
-		data := make([]byte, 1024)
-		read, remoteAddr, _ := b.listensock.ReadFromUDP(data)
+		select {
+		case <-b.kill:
+			return
 
-		b.in.Add(Signal{remoteAddr.IP.String(),data[:read]})
+		case <-c:
+			go b.getSignal(c)
+		}
 	}
 
+
+
+}
+
+func (b Beacon) getSignal(c chan struct {}){
+	data := make([]byte, 1024)
+	read, remoteAddr, _ := b.listensock.ReadFromUDP(data)
+
+	b.in.Add(Signal{remoteAddr.IP[len(remoteAddr.IP)-4:],data[:read]})
+	c<- struct{}{}
 }
 
 func (b Beacon) Signals() stream2go.Stream{
@@ -128,7 +145,7 @@ func (b Beacon) noEcho(d interface {}) bool {
 }
 
 type Signal struct {
-	SenderIp string
+	SenderIp []byte
 	Data []byte
 }
 

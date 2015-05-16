@@ -4,14 +4,18 @@ import (
 	"github.com/joernweissenborn/stream2go"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"log"
+	"encoding/binary"
+	"bytes"
+	"net"
 )
 
 
 type Implementation struct {
 	np stream2go.Stream
 	in stream2go.Stream
-
+	b Beacon
 	tracker *PeerTracker
+	port uint16
 }
 
 func New(uuid []byte) (i Implementation){
@@ -20,25 +24,25 @@ func New(uuid []byte) (i Implementation){
 	if err != nil {
 		log.Fatal(err)
 	}
-	i.in = incoming.in.Where(MessageOk).Transform(ToIncomingMessage)
+	i.in = incoming.in.Transform(MessageFromRaw).Where(MessageOk).Transform(ToIncomingMessage)
 	i.tracker = NewPeerTracker()
 	go i.tracker.Track()
-	var h, l uint8 = uint8(incoming.port>>8), uint8(incoming.port&0xff)
-
 	beaconpayload := []byte{PROTOCOLL_SIGNATURE}
 
 	for _ , b := range uuid {
-
+		beaconpayload = append(beaconpayload,byte(b))
 	}
-	beaconpayload := append(uuid,byte(h))
-	beaconpayload = append(beaconpayload,byte(l))
-	log.Println("Payload",beaconpayload)
-	beacon := NewBeacon(beaconpayload)
-	k, u := beacon.Signals().Split(i.tracker.isKnown)
+	i.port = incoming.port
+	b := make([]byte, 2)
+	binary.LittleEndian.PutUint16(b, i.port)
+	beaconpayload = append(beaconpayload,b[0])
+	beaconpayload = append(beaconpayload,b[1])
+	i.b = NewBeacon(beaconpayload, 5558)
+	k, u := i.b.Signals().Where(filterBeacon(uuid)).Split(i.tracker.isKnown)
 	k.Where(i.tracker.isTracked).Listen(i.tracker.Heartbeat)
 	u.Listen(i.tracker.add)
-	i.np = u
-	beacon.Run()
+	i.np = u.Transform(parseBeacon)
+	i.b.Run()
 
 	return
 }
@@ -55,11 +59,61 @@ func (i Implementation) LeavingPeers() (s stream2go.Stream) {
 func (i Implementation) In() (s stream2go.Stream) {return i.in}
 
 func (i Implementation) RegisterProtocol(p aurarath.Protocol) (s stream2go.Stream) {return}
-func (i Implementation) Connect(address aurarath.Address){
 
+func (i Implementation) Connect(home aurarath.Peer, target aurarath.Address) (s stream2go.StreamController, err error){
+	outstream,err := NewOutgoing(home,target)
+	if err != nil {
+		return
+	}
+	s = stream2go.New()
+	outstream.Join(s.Transform(OutgoingToMessage))
+	return
+}
+
+func (i Implementation) GetAdresses() (adresses []aurarath.Address){
+
+	adresses = []aurarath.Address{}
+	Interfaces,_ := net.Interfaces()
+	for _,iface := range Interfaces {
+		var a aurarath.Address
+		a.Implementation = IMPLEMENTATION_STRING
+		var d Details
+		add,_  := iface.Addrs()
+
+		Ip,_ := net.ResolveIPAddr(add[0].Network(),add[0].String())
+		d.Ip = Ip.IP[len(Ip.IP)-4:]
+		d.Port = i.port
+		a.Details = d
+		adresses = append(adresses,a)
+	}
+	return
+}
+
+func (i Implementation) Stop(){
+	i.b.Stop()
 }
 
 
-func filterBeacon(d interface {}) bool {
-	return len(d.(Signal)) == 19
+func filterBeacon(uuid []byte) func(d interface {}) bool {
+	return func(d interface {}) bool {
+			if len(d.(Signal).Data) != 19 {
+				return false
+			}
+			return !bytes.Equal(uuid,d.(Signal).Data[1:17])
+	}
+}
+
+func parseBeacon(d interface {}) interface {}{
+
+	data := d.(Signal).Data
+	var p aurarath.Peer
+	p.Id = data[1:17]
+	var a aurarath.Address
+	a.Implementation = IMPLEMENTATION_STRING
+	var det Details
+	det.Ip = d.(Signal).SenderIp
+	det.Port = binary.LittleEndian.Uint16(data[17:])
+	a.Details = det
+	p.Addresses = []aurarath.Address{a}
+	return p
 }
