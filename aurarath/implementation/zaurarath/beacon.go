@@ -6,6 +6,7 @@ import (
 	"log"
 	"github.com/joernweissenborn/stream2go"
 	"bytes"
+	"github.com/joernweissenborn/future2go"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 
 type Beacon struct {
 	payload []byte
-	kill chan struct {}
+	kill *future2go.Future
 	autotrack bool
 	listensock *net.UDPConn
 	outsocks []*net.UDPConn
@@ -32,7 +33,7 @@ func NewBeacon(payload []byte, port uint16) (b Beacon) {
 
 
 func (b *Beacon) Setup() {
-	b.kill = make(chan struct{})
+	b.kill = future2go.New()
 	b.setupBroadcastlistener()
 	b.outsocks= []*net.UDPConn{}
 	Interfaces,_ := net.Interfaces()
@@ -43,8 +44,7 @@ func (b *Beacon) Setup() {
 }
 
 func (b Beacon) Stop() {
-	b.kill <- struct{}{}
-	b.kill <- struct{}{}
+	b.kill.Complete(nil)
 
 }
 
@@ -95,10 +95,11 @@ func (b Beacon) Run(){
 func (b Beacon) listen(){
 
 	c := make(chan struct{})
+	kill := b.kill.AsChan()
 	go b.getSignal(c)
 	for {
 		select {
-		case <-b.kill:
+		case <-kill:
 			return
 
 		case <-c:
@@ -124,12 +125,14 @@ func (b Beacon) Signals() stream2go.Stream{
 
 func (b Beacon) Ping(s *net.UDPConn) {
 
-	var pingtime = 1 * time.Second
+	var pingtime = 1000 * time.Millisecond
+	kill := b.kill.AsChan()
 
 	t := time.NewTimer(pingtime)
+	s.Write(b.payload)
 	for {
 		select {
-		case <-b.kill:
+		case <-kill:
 			return
 
 		case <-t.C:

@@ -3,6 +3,7 @@ package zaurarath
 import (
 	"github.com/joernweissenborn/future2go"
 	"testing"
+	"time"
 )
 
 
@@ -25,6 +26,30 @@ func TestBeacon(t *testing.T) {
 
 	if string(data2.Data) != "1234" {
 		t.Error("got wrong data", data)
+	}
+}
+
+
+
+func TestBeaconstop(t *testing.T) {
+	b1 := NewBeacon([]byte("1234"), 9999)
+	defer b1.Stop()
+	c1 := make(chan interface{})
+	b2 := NewBeacon([]byte("HALLO"), 9999)
+
+	c2 := make(chan interface{})
+	b2.Signals().First().Then(testcompleter(c2))
+	b2.Run()
+	b1.Run()
+	time.Sleep(2*time.Second)
+	b2.Stop()
+	time.Sleep(3*time.Second)
+	b1.Signals().First().Then(testcompleter(c1))
+	select {
+	case <- c1:
+		t.Error("Beaon didnt stop")
+	case <- time.After(1*time.Second):
+
 	}
 }
 

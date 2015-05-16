@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 	"github.com/joernweissenborn/stream2go"
+	"github.com/joernweissenborn/aursir4go/aurarath"
 )
 
 type PeerTracker struct {
@@ -20,30 +21,14 @@ func NewPeerTracker() (pt *PeerTracker){
 	return
 }
 
-func (pt *PeerTracker) isTracked(d interface {}) (is bool) {
-	pt.RLock()
-	defer pt.RUnlock()
-	var s Signal
-	s, is = d.(Signal)
-	if !is {
-		return
-	}
-	p,is := pt.trackedPeers[string(s.Data[:16])]
-	if is {
-		is = p.track
-	}
-	return
-}
+
 
 func (pt *PeerTracker) isKnown(d interface {}) (is bool) {
 	pt.RLock()
 	defer pt.RUnlock()
-	var s Signal
-	s, is = d.(Signal)
-	if !is {
-		return
-	}
-	_,is = pt.trackedPeers[string(s.Data[:16])]
+	peer := d.(aurarath.Peer)
+
+	_,is = pt.trackedPeers[string(peer.Id)]
 
 	return
 }
@@ -51,28 +36,12 @@ func (pt *PeerTracker) isKnown(d interface {}) (is bool) {
 func (pt *PeerTracker) add(d interface {}) {
 	pt.Lock()
 	defer pt.Unlock()
-	s, is := d.(Signal)
-	if !is {
-		return
-	}
+	peer := d.(aurarath.Peer)
 	var p TrackedPeer
-	pt.trackedPeers[string(s.Data[:16])] = p
+	p.Peer = peer
+	pt.trackedPeers[string(p.Id)] = p
 
 	return
-}
-
-
-func (pt *PeerTracker) TrackPeer(Id string) {
-
-	pt.Lock()
-	defer  pt.Unlock()
-
-	p, f := pt.trackedPeers[Id]
-	if f {
-		p.track = true
-		p.lastCheckin = time.Now()
-	}
-
 }
 
 
@@ -95,36 +64,34 @@ func (pt *PeerTracker) Track() {
 
 
 func (pt *PeerTracker) checkTimeout() {
-	for id, p := range pt.trackedPeers {
+	for _, p := range pt.trackedPeers {
 		pt.RLock()
-		if !p.track {continue}
 		lastCheck := time.Since(p.lastCheckin).Seconds()
 		pt.RUnlock()
-		if lastCheck < 5.0 {
-			pt.PeerDead(id)
+		if lastCheck > 5.0 {
+			pt.PeerDead(p.Peer)
 		}
 	}
 	return
 }
 
-func (pt *PeerTracker) PeerDead(Id string) {
+func (pt *PeerTracker) PeerDead(p aurarath.Peer) {
 	pt.Lock()
 	defer pt.Unlock()
-	delete(pt.trackedPeers,Id)
-	pt.deadPeers.Add(Id)
+	delete(pt.trackedPeers,string(p.Id))
+	pt.deadPeers.Add(p)
 }
 func (pt *PeerTracker) Heartbeat(d interface {}) {
 	pt.Lock()
 	defer pt.Unlock()
-	var s Signal
-	s = d.(Signal)
+	peer := d.(aurarath.Peer)
 
-	p := pt.trackedPeers[string(s.Data[:16])]
+	p := pt.trackedPeers[string(peer.Id)]
 	p.lastCheckin = time.Now()
 	return
 }
 
 type TrackedPeer struct {
-	track bool
+	aurarath.Peer
 	lastCheckin time.Time
 }

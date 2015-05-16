@@ -4,13 +4,13 @@ import (
 	"testing"
 	"github.com/joernweissenborn/stream2go"
 	"github.com/joernweissenborn/aursir4go/aurarath"
-	"time"
 	"bytes"
 	"log"
+	"time"
 )
 
 
-func TstPeerDiscover(t *testing.T){
+func TestPeerDiscover(t *testing.T){
 
 	iface1 := New([]byte("1111111111111111"))
 	c1 := make(chan interface {})
@@ -31,7 +31,27 @@ func TstPeerDiscover(t *testing.T){
 	if string(data.Id) != "1111111111111111" {
 		t.Error("wrong id",string(data.Id))
 	}
-	time.Sleep(1000*time.Millisecond)
+
+}
+
+
+func TestPeerLeave(t *testing.T){
+
+	iface1 := New([]byte("1111111111111111"))
+	c1 := make(chan interface {})
+	iface1.LeavingPeers().Where(isid("2222222222222222")).Listen(testlistener(c1))
+
+	iface2 := New([]byte("2222222222222222"))
+
+	 iface2.Stop()
+
+	select {
+	case <- time.After(51*time.Second):
+		t.Error("Beaon didnt stop")
+	case <- c1:
+
+	}
+	iface1.Stop()
 
 }
 
@@ -39,11 +59,11 @@ func TestPeerConnection(t *testing.T){
 //	time.Sleep(1000*time.Millisecond)
 	iface1 := New([]byte("3111111111111111"))
 	c1 := make(chan interface {})
-	iface1.NewPeers().Listen(testlistener(c1))
+	iface1.NewPeers().Where(isid("4222222222222222")).Listen(testlistener(c1))
 
 	iface2 := New([]byte("4222222222222222"))
 	c2 := make(chan interface {})
-	iface2.NewPeers().Listen(testlistener(c2))
+	iface2.NewPeers().Where(isid("3111111111111111")).Listen(testlistener(c2))
 
 	var home1 aurarath.Peer
 	home1.Id = []byte("3111111111111111")
@@ -73,11 +93,14 @@ func TestPeerConnection(t *testing.T){
 
 	d1 := bytes.NewBufferString("Hello1")
 	d2 := bytes.NewBufferString("Hello2")
-	out1.Add(aurarath.NewMessage(home1, 3,4, []aurarath.Payload{aurarath.Payload{7,d1}}))
+	t1:= time.Now()
 	out2.Add(aurarath.NewMessage(home2, 5,6, []aurarath.Payload{aurarath.Payload{8,d2}}))
-
 	m1 := (<-c3).(aurarath.Message)
+	log.Println(time.Since(t1).Nanoseconds()/1000)
+	t2:= time.Now()
+	out1.Add(aurarath.NewMessage(home1, 3,4, []aurarath.Payload{aurarath.Payload{7,d1}}))
 	m2 := (<-c4).(aurarath.Message)
+	log.Println(time.Since(t2).Nanoseconds()/1000)
 
 
 	if string(m1.Payloads[0].Bytes.Bytes()) != "Hello2" {
@@ -105,3 +128,11 @@ func testlistener(c chan interface {}) stream2go.Suscriber {
 		c<-d
 	}
 }
+
+func isid(id string) stream2go.Filter {
+	return func(d interface {})bool{
+		return string(d.(aurarath.Peer).Id) == id
+	}
+}
+
+

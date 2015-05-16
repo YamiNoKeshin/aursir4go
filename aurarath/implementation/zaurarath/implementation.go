@@ -38,10 +38,10 @@ func New(uuid []byte) (i Implementation){
 	beaconpayload = append(beaconpayload,b[0])
 	beaconpayload = append(beaconpayload,b[1])
 	i.b = NewBeacon(beaconpayload, 5558)
-	k, u := i.b.Signals().Where(filterBeacon(uuid)).Split(i.tracker.isKnown)
-	k.Where(i.tracker.isTracked).Listen(i.tracker.Heartbeat)
+	k, u := i.b.Signals().Where(filterBeacon(uuid)).Transform(parseBeacon).Split(i.tracker.isKnown)
+	k.Listen(i.tracker.Heartbeat)
 	u.Listen(i.tracker.add)
-	i.np = u.Transform(parseBeacon)
+	i.np = u
 	i.b.Run()
 
 	return
@@ -90,6 +90,8 @@ func (i Implementation) GetAdresses() (adresses []aurarath.Address){
 }
 
 func (i Implementation) Stop(){
+	i.np.Close()
+	i.in.Close()
 	i.b.Stop()
 }
 
