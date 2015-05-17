@@ -1,11 +1,11 @@
 package aursir4go
 
 import (
-	"time"
 	"github.com/joernweissenborn/aursir4go/appkey"
+	"github.com/joernweissenborn/aursir4go/calltypes"
 	"github.com/joernweissenborn/aursir4go/messages"
 	"github.com/joernweissenborn/aursir4go/util"
-	"github.com/joernweissenborn/aursir4go/calltypes"
+	"time"
 )
 
 //ExportedAppKey provides methods to get incoming requests and reply to them. It also other methods to set a persistence
@@ -23,24 +23,22 @@ func (eak ExportedAppKey) GetId() string {
 	return eak.exportId
 }
 
-
 //Tags returns the exports current tags.
 func (eak ExportedAppKey) Tags() []string {
 	return eak.tags
 }
 
-
 //Reply encodes the result and sends it to the interface, where it is transmitted to the aursir runtime. Perssitence is
 // either set by the Request or is overridden by calling e.g. SetLogging.
 func (eak ExportedAppKey) Reply(Request messages.Request, Result interface{}) error {
-	return eak.reply(Request,Result,false,true)
+	return eak.reply(Request, Result, false, true)
 }
 
 //StreamingReply works like Reply, but sets the streaming flag on the Result, so importers can react on it. Streams are
 // identified by their requests, so use the same Request to make consecutive stream. Set finished true to indicate that
 // you finished sending data
 func (eak ExportedAppKey) StreamingReply(Request messages.Request, Result interface{}, Finished bool) error {
-	return eak.reply(Request,Result,true,Finished)
+	return eak.reply(Request, Result, true, Finished)
 }
 
 //UpdateTags sets the exports tags while overriding the old and registers the new tagset at the runtime. If you want to
@@ -48,18 +46,16 @@ func (eak ExportedAppKey) StreamingReply(Request messages.Request, Result interf
 func (eak *ExportedAppKey) UpdateTags(NewTags []string) {
 	eak.tags = NewTags
 	msg, _ := util.GetCodec(eak.iface.codec).Encode(messages.UpdateExportMessage{eak.exportId, eak.tags})
-	eak.iface.outgoing.Send(messages.UPDATE_EXPORT,eak.iface.codec,msg)
+	eak.iface.outgoing.Send(messages.UPDATE_EXPORT, eak.iface.codec, msg)
 }
 
 //AddTag adds a tag to the exports tags and registers the new tagset at the runtime. If you want to set a new tagset,
 // use UpdateTags
 func (eak *ExportedAppKey) AddTag(Tag string) {
-	eak.UpdateTags(append(eak.tags,Tag))
+	eak.UpdateTags(append(eak.tags, Tag))
 }
 
-
-
-func (eak ExportedAppKey) reply(req messages.Request, res interface{},stream, finished bool) error {
+func (eak ExportedAppKey) reply(req messages.Request, res interface{}, stream, finished bool) error {
 	var aursirResult messages.Result
 	aursirResult.AppKeyName = eak.key.ApplicationKeyName
 	aursirResult.Codec = "JSON"
@@ -79,7 +75,8 @@ func (eak ExportedAppKey) reply(req messages.Request, res interface{},stream, fi
 
 	if err == nil {
 		msg, _ := util.GetCodec(eak.iface.codec).Encode(aursirResult)
-		eak.iface.outgoing.Send(messages.RESULT,eak.iface.codec,msg)		}
+		eak.iface.outgoing.Send(messages.RESULT, eak.iface.codec, msg)
+	}
 	return err
 }
 
@@ -88,5 +85,5 @@ func (eak ExportedAppKey) Emit(FunctionName string, Result interface{}) error {
 	Request.FunctionName = FunctionName
 	Request.CallType = calltypes.MANY2ONE
 	Request.Uuid = generateUuid()
-	return eak.reply(Request,Result,false,true)
+	return eak.reply(Request, Result, false, true)
 }

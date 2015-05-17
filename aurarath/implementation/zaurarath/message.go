@@ -2,9 +2,9 @@ package zaurarath
 
 import (
 	"bytes"
+	"encoding/binary"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"net"
-	"encoding/binary"
 )
 
 // Message
@@ -20,30 +20,29 @@ import (
 
 const (
 	PROTOCOLL_SIGNATURE uint8 = 0xA5
-	PROTOCOLL_MAJOR uint8 = 0
-	PROTOCOLL_MINOR uint8 = 3
+	PROTOCOLL_MAJOR     uint8 = 0
+	PROTOCOLL_MINOR     uint8 = 3
 )
-
 
 type Message struct {
 	raw [][]byte
 }
 
-func MessageFromRaw(d interface {}) (m interface {}){
+func MessageFromRaw(d interface{}) (m interface{}) {
 	data := [][]byte{}
-	for _, di := range d.([]string){
+	for _, di := range d.([]string) {
 		data = append(data, []byte(di))
 	}
 	return Message{data}
 }
 
-func MessageOk(d interface {}) bool {
+func MessageOk(d interface{}) bool {
 	m := ToMessage(d)
 	if len(m.raw) < 4 {
 		return false
 	}
 
-	if !bytes.Equal(m.raw[1], []byte{byte(PROTOCOLL_SIGNATURE)}){
+	if !bytes.Equal(m.raw[1], []byte{byte(PROTOCOLL_SIGNATURE)}) {
 		return false
 	}
 
@@ -65,8 +64,8 @@ func MessageOk(d interface {}) bool {
 	return true
 }
 
-func ToIncomingMessage(d interface {}) interface {}{
-	data:= d.(Message).raw
+func ToIncomingMessage(d interface{}) interface{} {
+	data := d.(Message).raw
 
 	var msg aurarath.Message
 	var peer aurarath.Peer
@@ -75,16 +74,17 @@ func ToIncomingMessage(d interface {}) interface {}{
 	address.Implementation = IMPLEMENTATION_STRING
 	var details Details
 	rawdetails := data[3]
-	details.Ip = net.IPv4(uint8(rawdetails[0]),uint8(rawdetails[1]),uint8(rawdetails[2]),uint8(rawdetails[3]))
+	details.Ip = net.IPv4(uint8(rawdetails[0]), uint8(rawdetails[1]), uint8(rawdetails[2]), uint8(rawdetails[3]))
 	details.Ip = details.Ip[len(details.Ip)-5:]
 	details.Port = binary.LittleEndian.Uint16(rawdetails[:4])
-	address.Details= details
+	address.Details = details
+	peer.Addresses = []aurarath.Address{address}
 	msg.Sender = peer
 
 	msg.Protocol = uint8(data[4][0])
 	msg.Type = uint8(data[5][0])
 	msg.Payloads = []aurarath.Payload{}
-	for i := 6; i< len(data);i++ {
+	for i := 6; i < len(data); i++ {
 		if len(data[i]) <= 1 {
 			continue
 		}
@@ -92,27 +92,27 @@ func ToIncomingMessage(d interface {}) interface {}{
 	}
 	return msg
 }
-func OutgoingToMessage(d interface {}) interface {}{
+func OutgoingToMessage(d interface{}) interface{} {
 	m := d.(aurarath.Message)
 
 	var msg Message
 	msg.raw = [][]byte{
 		[]byte{byte(PROTOCOLL_SIGNATURE)},
-		[]byte{byte(PROTOCOLL_MAJOR),byte(PROTOCOLL_MINOR)},
+		[]byte{byte(PROTOCOLL_MAJOR), byte(PROTOCOLL_MINOR)},
 		[]byte{},
 		[]byte{byte(m.Protocol)},
 		[]byte{byte(m.Type)},
 	}
 
-	for _,pl := range m.Payloads {
-		load := append(pl.Bytes.Bytes(),byte(pl.Codec))
-		msg.raw = append(msg.raw,load)
+	for _, pl := range m.Payloads {
+		load := append(pl.Bytes.Bytes(), byte(pl.Codec))
+		msg.raw = append(msg.raw, load)
 	}
 
 	return msg
 }
 
-func ToMessage(d interface {}) (m Message){
+func ToMessage(d interface{}) (m Message) {
 	m, _ = d.(Message)
 	return
 }

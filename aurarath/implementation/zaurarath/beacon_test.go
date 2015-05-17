@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-
 func TestBeacon(t *testing.T) {
 	b1 := NewBeacon([]byte("1234"), 9999)
 	defer b1.Stop()
@@ -29,8 +28,6 @@ func TestBeacon(t *testing.T) {
 	}
 }
 
-
-
 func TestBeaconstop(t *testing.T) {
 	b1 := NewBeacon([]byte("1234"), 9999)
 	defer b1.Stop()
@@ -41,30 +38,28 @@ func TestBeaconstop(t *testing.T) {
 	b2.Signals().First().Then(testcompleter(c2))
 	b2.Run()
 	b1.Run()
-	time.Sleep(2*time.Second)
+	time.Sleep(1 * time.Second)
 	b2.Stop()
-	time.Sleep(3*time.Second)
+	time.Sleep(1 * time.Second)
 	b1.Signals().First().Then(testcompleter(c1))
 	select {
-	case <- c1:
+	case <-c1:
 		t.Error("Beaon didnt stop")
-	case <- time.After(1*time.Second):
+	case <-time.After(1 * time.Second):
 
 	}
 }
 
-
-func testcompleter(c chan interface {}) future2go.CompletionFunc {
-	return func(d interface {})interface {}{
-		c<-d
+func testcompleter(c chan interface{}) future2go.CompletionFunc {
+	return func(d interface{}) interface{} {
+		c <- d
 		return nil
 	}
 }
 
-
-func checkip(c chan interface {}) future2go.CompletionFunc {
-	return func(d interface {})interface {}{
-		c<-d
+func checkip(c chan interface{}) future2go.CompletionFunc {
+	return func(d interface{}) interface{} {
+		c <- d
 		return nil
 	}
 }

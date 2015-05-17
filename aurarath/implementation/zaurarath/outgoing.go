@@ -1,21 +1,20 @@
 package zaurarath
 
 import (
-	"github.com/pebbe/zmq4"
+	"encoding/binary"
 	"fmt"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"github.com/joernweissenborn/stream2go"
+	"github.com/pebbe/zmq4"
 	"net"
-	"encoding/binary"
 )
 
-
 type Outgoing struct {
-	skt *zmq4.Socket
+	skt         *zmq4.Socket
 	ipportbytes []byte
 }
 
-func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.StreamController, err error){
+func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.StreamController, err error) {
 	var o Outgoing
 	o.skt, err = zmq4.NewSocket(zmq4.DEALER)
 	if err != nil {
@@ -24,10 +23,10 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 
 	o.skt.SetIdentity(string(home.Id))
 	targetdetails := target.Details.(Details)
-	Ip := net.IPv4(uint8(targetdetails.Ip[0]),uint8(targetdetails.Ip[1]),uint8(targetdetails.Ip[2]),uint8(targetdetails.Ip[3]))
-	err = o.skt.Connect(fmt.Sprintf("tcp://%s:%d",Ip.String(),targetdetails.Port))
+	Ip := net.IPv4(uint8(targetdetails.Ip[0]), uint8(targetdetails.Ip[1]), uint8(targetdetails.Ip[2]), uint8(targetdetails.Ip[3]))
+	err = o.skt.Connect(fmt.Sprintf("tcp://%s:%d", Ip.String(), targetdetails.Port))
 
-	homedetails, f := FindBestAddress(home,target)
+	homedetails, f := FindBestAddress(home, target)
 	if !f {
 		return
 	}
@@ -43,7 +42,7 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 	return
 }
 
-func (o Outgoing)send(d interface {}) (){
+func (o Outgoing) send(d interface{}) {
 	msg := ToMessage(d).raw
 	msg[2] = o.ipportbytes
 
@@ -51,7 +50,7 @@ func (o Outgoing)send(d interface {}) (){
 
 	return
 }
-func (o Outgoing) Close(interface {}) (interface {}){
+func (o Outgoing) Close(interface{}) interface{} {
 	return o.skt.Close()
 
 }

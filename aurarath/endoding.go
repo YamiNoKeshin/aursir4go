@@ -7,7 +7,11 @@ const (
 	JSON
 )
 
-func decode(s *bytes.Buffer, t interface {}, codec string){}
-func encode(interface {}) (b *bytes.Buffer) {
+var (
+	CODECS []uint8 = []uint8{JSON}
+)
+
+func decode(s *bytes.Buffer, t interface{}, codec string) {}
+func encode(interface{}) (b *bytes.Buffer) {
 	return
 }

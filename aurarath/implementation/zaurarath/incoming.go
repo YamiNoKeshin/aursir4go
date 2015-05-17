@@ -1,35 +1,34 @@
 package zaurarath
 
 import (
-	"net"
 	"github.com/pebbe/zmq4"
+	"net"
 
-	"github.com/joernweissenborn/stream2go"
 	"fmt"
+	"github.com/joernweissenborn/stream2go"
 )
 
 type Incoming struct {
 	port uint16
-	skt *zmq4.Socket
-	in stream2go.StreamController
+	skt  *zmq4.Socket
+	in   stream2go.StreamController
 }
 
-
-func NewIncoming() (i Incoming, err error){
+func NewIncoming() (i Incoming, err error) {
 	i.in = stream2go.New()
 	err = i.setupSocket()
 	go i.Listen()
 	return
 }
-func (i *Incoming) setupSocket() (err error){
+func (i *Incoming) setupSocket() (err error) {
 	i.port = getRandomPort()
 	i.skt, err = zmq4.NewSocket(zmq4.ROUTER)
 	if err != nil {
 		return
 	}
 
-	err = i.skt.Bind(fmt.Sprintf("tcp://*:%d",i.port))
-		return
+	err = i.skt.Bind(fmt.Sprintf("tcp://*:%d", i.port))
+	return
 }
 
 func getRandomPort() uint16 {
@@ -40,7 +39,6 @@ func getRandomPort() uint16 {
 	defer l.Close()
 	return uint16(l.Addr().(*net.TCPAddr).Port)
 }
-
 
 func (i Incoming) Listen() {
 

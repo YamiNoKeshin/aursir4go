@@ -1,12 +1,12 @@
 package zaurarath
 
 import (
-	"time"
-	"net"
-	"log"
-	"github.com/joernweissenborn/stream2go"
 	"bytes"
 	"github.com/joernweissenborn/future2go"
+	"github.com/joernweissenborn/stream2go"
+	"log"
+	"net"
+	"time"
 )
 
 const (
@@ -14,13 +14,13 @@ const (
 )
 
 type Beacon struct {
-	payload []byte
-	kill *future2go.Future
-	autotrack bool
+	payload    []byte
+	kill       *future2go.Future
+	autotrack  bool
 	listensock *net.UDPConn
-	outsocks []*net.UDPConn
-	port int
-	in stream2go.StreamController
+	outsocks   []*net.UDPConn
+	port       int
+	in         stream2go.StreamController
 }
 
 func NewBeacon(payload []byte, port uint16) (b Beacon) {
@@ -31,13 +31,12 @@ func NewBeacon(payload []byte, port uint16) (b Beacon) {
 	return
 }
 
-
 func (b *Beacon) Setup() {
 	b.kill = future2go.New()
 	b.setupBroadcastlistener()
-	b.outsocks= []*net.UDPConn{}
-	Interfaces,_ := net.Interfaces()
-	for _,iface := range Interfaces {
+	b.outsocks = []*net.UDPConn{}
+	Interfaces, _ := net.Interfaces()
+	for _, iface := range Interfaces {
 
 		b.setupBeacon(iface)
 	}
@@ -48,21 +47,18 @@ func (b Beacon) Stop() {
 
 }
 
-
 func (b *Beacon) setupBroadcastlistener() (err error) {
 
-	b.listensock, err = net.ListenMulticastUDP("udp4",nil, &net.UDPAddr{
+	b.listensock, err = net.ListenMulticastUDP("udp4", nil, &net.UDPAddr{
 		IP:   net.IPv4(224, 0, 0, 251),
-		Port: b.port ,
+		Port: b.port,
 	})
 	return
 }
 
-
-
 func (b *Beacon) setupBeacon(Interface net.Interface) (err error) {
 	BROADCAST_IPv4 := net.IPv4bcast
-	ip,_ := Interface.Addrs()
+	ip, _ := Interface.Addrs()
 	addr, err := net.ResolveIPAddr("ip4", ip[0].String())
 	if err != nil {
 		log.Fatal(err)
@@ -70,29 +66,25 @@ func (b *Beacon) setupBeacon(Interface net.Interface) (err error) {
 
 	socket, err := net.DialUDP("udp4", &net.UDPAddr{
 		IP:   addr.IP,
-		Port: 0,},
+		Port: 0},
 		&net.UDPAddr{
-		IP:   BROADCAST_IPv4,
-		Port: b.port ,
-	})
+			IP:   BROADCAST_IPv4,
+			Port: b.port,
+		})
 
 	b.outsocks = append(b.outsocks, socket)
 
 	return
 }
 
-
-
-
-func (b Beacon) Run(){
+func (b Beacon) Run() {
 	go b.listen()
 	for _, s := range b.outsocks {
 		go b.Ping(s)
 	}
 }
 
-
-func (b Beacon) listen(){
+func (b Beacon) listen() {
 
 	c := make(chan struct{})
 	kill := b.kill.AsChan()
@@ -107,19 +99,17 @@ func (b Beacon) listen(){
 		}
 	}
 
-
-
 }
 
-func (b Beacon) getSignal(c chan struct {}){
+func (b Beacon) getSignal(c chan struct{}) {
 	data := make([]byte, 1024)
 	read, remoteAddr, _ := b.listensock.ReadFromUDP(data)
 
-	b.in.Add(Signal{remoteAddr.IP[len(remoteAddr.IP)-4:],data[:read]})
-	c<- struct{}{}
+	b.in.Add(Signal{remoteAddr.IP[len(remoteAddr.IP)-4:], data[:read]})
+	c <- struct{}{}
 }
 
-func (b Beacon) Signals() stream2go.Stream{
+func (b Beacon) Signals() stream2go.Stream {
 	return b.in.Where(b.noEcho)
 }
 
@@ -129,7 +119,7 @@ func (b Beacon) Ping(s *net.UDPConn) {
 	kill := b.kill.AsChan()
 
 	t := time.NewTimer(pingtime)
-	s.Write(b.payload)
+	//s.Write(b.payload)
 	for {
 		select {
 		case <-kill:
@@ -143,12 +133,11 @@ func (b Beacon) Ping(s *net.UDPConn) {
 
 }
 
-func (b Beacon) noEcho(d interface {}) bool {
-	return !bytes.Equal(d.(Signal).Data,b.payload)
+func (b Beacon) noEcho(d interface{}) bool {
+	return !bytes.Equal(d.(Signal).Data, b.payload)
 }
 
 type Signal struct {
 	SenderIp []byte
-	Data []byte
+	Data     []byte
 }
-

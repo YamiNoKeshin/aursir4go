@@ -5,7 +5,6 @@ import (
 )
 
 type AurBaethExport interface {
-
 	Id() string
 
 	Remove()
@@ -14,7 +13,5 @@ type AurBaethExport interface {
 
 	ExportFunction(function string) stream2go.Stream
 
-	Emit(function string, parameter interface {})
+	Emit(function string, parameter interface{})
 }
-
-

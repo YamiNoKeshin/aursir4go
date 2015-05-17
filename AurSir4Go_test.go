@@ -282,7 +282,6 @@ func TestCallChainFinalize(T *testing.T) {
 	}
 }
 
-
 func TestPersitenceLogging(T *testing.T) {
 	importer, imp := testimporter()
 	defer importer.Close()

@@ -1,8 +1,8 @@
 package zaurarath
 
 import (
-	"github.com/joernweissenborn/aursir4go/aurarath"
 	"bytes"
+	"github.com/joernweissenborn/aursir4go/aurarath"
 )
 
 const (
@@ -10,13 +10,11 @@ const (
 )
 
 type Details struct {
-
-	Ip []byte
+	Ip   []byte
 	Port uint16
-
 }
 
-func FindBestAddress(peer aurarath.Peer, target aurarath.Address) (match aurarath.Address, f bool){
+func FindBestAddress(peer aurarath.Peer, target aurarath.Address) (match aurarath.Address, f bool) {
 	if len(peer.Addresses) == 1 {
 		return peer.Addresses[1], true
 	}
@@ -24,8 +22,8 @@ func FindBestAddress(peer aurarath.Peer, target aurarath.Address) (match aurarat
 	for _, addr := range peer.Addresses {
 		ad := addr.Details.(Details)
 
-		if bytes.Equal(td.Ip[:3],ad.Ip[:3]) {
-			return addr,true
+		if bytes.Equal(td.Ip[:3], ad.Ip[:3]) {
+			return addr, true
 		}
 	}
 	return

@@ -2,16 +2,22 @@ package aurarath
 
 import (
 	"github.com/joernweissenborn/stream2go"
-	"github.com/joernweissenborn/future2go"
 )
 
 type Implementation interface {
 
+	Init([]byte) error
+
 	NewPeers() stream2go.Stream
 	LeavingPeers() stream2go.Stream
+	In() stream2go.Stream
 
-	RegisterProtocol(p Protocol) stream2go.Stream
-	Responsible(interface {}) bool
+	Responsible(Peer) (bool, Address)
 
-	Connect(Peer) (out stream2go.StreamController, gone future2go.Future)
+	Connect(home Peer, target Address) (s stream2go.StreamController, err error)
+
+	GetAdresses() (adresses []Address)
+
+	Run()
+	Stop()
 }

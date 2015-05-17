@@ -1,16 +1,15 @@
 package aursir4go
 
 import (
-	uuid "github.com/nu7hatch/gouuid"
-	"time"
-	"github.com/joernweissenborn/aursir4go/messages"
+	"github.com/joernweissenborn/aursir4go/appkey"
+	"github.com/joernweissenborn/aursir4go/internal"
 	"github.com/joernweissenborn/aursir4go/internal/dock"
 	"github.com/joernweissenborn/aursir4go/internal/dock/dockzmq"
+	"github.com/joernweissenborn/aursir4go/messages"
 	"github.com/joernweissenborn/aursir4go/util"
-	"github.com/joernweissenborn/aursir4go/internal"
-	"github.com/joernweissenborn/aursir4go/appkey"
+	uuid "github.com/nu7hatch/gouuid"
+	"time"
 )
-
 
 //The AurSirInterface handles the runtime time connection. It holds methods to create im- and exports.
 type AurSirInterface struct {
@@ -22,10 +21,7 @@ type AurSirInterface struct {
 
 	exports map[string]*ExportedAppKey
 
-
 	imports map[string]*ImportedAppKey
-
-
 
 	incoming dock.Incoming
 	outgoing dock.Outgoing
@@ -42,7 +38,6 @@ func NewInterface(AppName string) (iface AurSirInterface, err error) {
 	iface.UUID = generateUuid()
 
 	iface.codec = "JSON"
-
 
 	iface.incomingprocessor = internal.InitIncomingProcessor()
 	iface.exports = map[string]*ExportedAppKey{}
@@ -73,10 +68,11 @@ func NewInterface(AppName string) (iface AurSirInterface, err error) {
 
 //Close shuts down the AurSir interface
 func (iface *AurSirInterface) Close() {
-//	log.Println("Closing out channel")
-//	log.Println("out channel closed")
-	                        iface.leave()
+	//	log.Println("Closing out channel")
+	//	log.Println("out channel closed")
+	iface.leave()
 }
+
 //AddExport adds the specified ApplicationKey and tags and registeres it at the runtime. It returns a pointer to an
 // ExportedAppKey which can be userd to handle incoming requests
 func (iface *AurSirInterface) AddExport(key appkey.AppKey, tags []string) *ExportedAppKey {
@@ -87,16 +83,15 @@ func (iface *AurSirInterface) AddExport(key appkey.AppKey, tags []string) *Expor
 	ak.key = key
 	ak.tags = tags
 
-	expReq := messages.AddExportMessage{key, tags,""}
+	expReq := messages.AddExportMessage{key, tags, ""}
 
 	msg, _ := util.GetCodec(iface.codec).Encode(expReq)
-	iface.outgoing.Send(messages.ADD_EXPORT,iface.codec,msg)
-
+	iface.outgoing.Send(messages.ADD_EXPORT, iface.codec, msg)
 
 	ak.exportId = <-iface.incomingprocessor.AddExport
 
-	ak.Request = make(chan messages.Request,1)
-	iface.incomingprocessor.RegisterRequestChan(ak.exportId,ak.Request)
+	ak.Request = make(chan messages.Request, 1)
+	iface.incomingprocessor.RegisterRequestChan(ak.exportId, ak.Request)
 	iface.exports[ak.exportId] = &ak
 
 	return &ak
@@ -114,35 +109,35 @@ func (iface *AurSirInterface) AddImport(key appkey.AppKey, tags []string) *Impor
 	ak.tags = tags
 
 	ak.listenChan = make(chan messages.Result)
-	impReq := messages.AddImportMessage{key, tags,""}
+	impReq := messages.AddImportMessage{key, tags, ""}
 	msg, _ := util.GetCodec(iface.codec).Encode(impReq)
-	iface.outgoing.Send(messages.ADD_IMPORT,iface.codec,msg)
+	iface.outgoing.Send(messages.ADD_IMPORT, iface.codec, msg)
 
 	ak.importId = <-iface.incomingprocessor.AddImport
 
-	iface.incomingprocessor.RegisterResultChan(ak.importId,ak.listenChan)
+	iface.incomingprocessor.RegisterResultChan(ak.importId, ak.listenChan)
 	ak.connected = iface.incomingprocessor.ExportedChans[ak.importId]
 	iface.imports[ak.importId] = &ak
 	return &ak
 }
-
 
 //dock initializes the connection to the runtime by sending a DOCK message
 func (iface AurSirInterface) dock() {
 	msg, _ := util.GetCodec(iface.codec).Encode(iface.getdockmsg())
 	iface.outgoing.Send(messages.DOCK, iface.codec, msg)
 }
+
 //dock initializes the connection to the runtime by sending a DOCK message
 func (iface AurSirInterface) leave() {
-	iface.outgoing.Send(messages.LEAVE,iface.codec,[]byte{})
+	iface.outgoing.Send(messages.LEAVE, iface.codec, []byte{})
 }
 
 func (iface AurSirInterface) Docked() bool {
-	docked := <- iface.incomingprocessor.Docked
+	docked := <-iface.incomingprocessor.Docked
 	iface.incomingprocessor.Docked <- docked
 	return docked
 }
-func (iface AurSirInterface) WaitUntilDocked()  {
+func (iface AurSirInterface) WaitUntilDocked() {
 	docked := false
 	for !docked {
 		docked = iface.Docked()
@@ -151,12 +146,8 @@ func (iface AurSirInterface) WaitUntilDocked()  {
 	return
 }
 func (iface AurSirInterface) getdockmsg() messages.DockMessage {
-	return messages.DockMessage{iface.AppName,[]string{"MSGPACK","JSON"},false}
+	return messages.DockMessage{iface.AppName, []string{"MSGPACK", "JSON"}, false}
 }
-
-
-
-
 
 func generateUuid() string {
 	Uuid, err := uuid.NewV4()
