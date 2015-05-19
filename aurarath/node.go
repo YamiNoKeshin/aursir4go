@@ -7,29 +7,29 @@ import (
 	"sync"
 	"github.com/joernweissenborn/future2go"
 	"errors"
+	"bytes"
 	"time"
 )
 
 type Node struct {
 	*sync.RWMutex
-	Self           Peer
+	Self          *Peer
 	newPeers     stream2go.StreamController
 	leavingPeers stream2go.StreamController
 	in           stream2go.StreamController
-	peers        map[string]Peer
+	peers        map[string]*Peer
 	implementations []Implementation
 }
 
 func NewNode() (n *Node) {
 	n = new(Node)
-	n.Self.Id = generateUuid()
-	n.Self.Addresses = []Address{}
+	n.Self = NewPeer(generateUuid())
 	n.RWMutex = new(sync.RWMutex)
 	n.newPeers = stream2go.New()
 	n.leavingPeers = stream2go.New()
 	n.in = stream2go.New()
 	n.implementations = []Implementation{}
-	n.peers = map[string]Peer{}
+	n.peers = map[string]*Peer{}
 	return
 }
 
@@ -37,19 +37,18 @@ func (n *Node) Run() {
 	n.Lock()
 	defer  n.Unlock()
 	for _, i := range n.implementations {
-		i.Init(n.Self.Id)
+		i.Init(n.Self.Id())
 		i.Run()
 		k, u := i.NewPeers().Split(n.KnownPeer)
-		n.newPeers.Join(u)
 		u.Listen(n.newPeer)
 		k.WhereNot(n.knownPeerAddress).Listen(n.newPeerAddress)
 		i.LeavingPeers().Listen(n.removePeerAddress)
 		n.in.Join(i.In())
 		for _,a := range i.GetAdresses() {
-			n.Self.Addresses = append(n.Self.Addresses,a)
+			n.Self.AddAddress(a)
 		}
 	}
-	n.in.Where(isAurArath).Where(isHello).Listen(n.onHello)
+	n.in.Where(isProtocol(PROTOCOL_CONSTANT)).Where(isHello).Listen(n.onHello)
 
 }
 
@@ -61,142 +60,154 @@ func (n *Node) Stop() {
 }
 
 func (n *Node) newPeer(d interface{}){
-	p := d.(Peer)
+	p := d.(*Peer)
 	n.Lock()
 	defer  n.Unlock()
-	n.peers[string(p.Id)] = p
+	n.peers[p.IdString()] = p
+	n.newPeers.Add(p)
+
 
 }
-
+var hellos = 0
+var hellosc = 0
+var hellosn = 0
 func (n *Node) onHello(d interface{}){
+	hellos++
+	log.Println("HELLONR", hellos)
 	m := toHello(d)
-	peer := m.Sender
-	peer.Codecs = m.Codecs
-	if n.KnownPeer(peer) {
-		if !n.knownPeerAddress(peer) {
-			n.newPeerAddress(peer)
+
+	if n.KnownPeer(m.Sender) {
+
+		if !n.knownPeerAddress(m.Sender) {
+			n.newPeerAddress(m.Sender)
 		}
-		n.Lock()
-		peer.Addresses = n.peers[string(peer.Id)].Addresses
-		peer.Connected= n.peers[string(peer.Id)].Connected
+
 	} else {
-		n.Lock()
+		n.newPeer(m.Sender)
 	}
+
+	n.Lock()
 	defer n.Unlock()
+	peer := n.peers[m.Sender.IdString()]
+	peer.SetCodecs(m.Codecs)
 
-	if peer.Connected == nil {
-		peer.Connected = future2go.New()
-	}
-	hm := NewHelloMessage(n.Self)
-
-	for _, i:= range n.implementations {
-		if is, add := i.Responsible(peer); is {
-			out, _ := i.Connect(n.Self,add)
-			out.Add(hm)
-			if !peer.Connected.IsComplete(){
-				peer.Connected.Complete(out)
-			} else {
-				out.Close()
+	if !peer.Connected().IsComplete() {
+		hellosn++
+		hm := n.encodeMsg(HelloMessage{})
+		for _, i:= range n.implementations {
+			if is, add := i.Responsible(*peer); is {
+				out, err := i.Connect(*n.Self,add)
+				if err != nil {
+					log.Println("ERROR OPEN CHAN", out)
+					defer n.onHello(d)
+					return
+				}
+				out.Add(hm)
+				s := stream2go.New()
+				out.Join(s.Transform(n.encodeMsg))
+				peer.Connected().Complete(s)
 			}
 			break
 		}
+	}
+	log.Println("HELLONC", hellosc)
+	log.Println("HELLONN", hellosn)
 
+	if !peer.Connected().IsComplete() {
+		peer.Connected().CompleteError(errors.New("NO_IMP"))
+		peer.ResetConnected()
 	}
-	if !peer.Connected.IsComplete() {
-		peer.Connected.CompleteError(errors.New("NO_IMP"))
-		peer.Connected = nil
-	}
-	n.peers[string(peer.Id)] = peer
 
 }
 
-func (n *Node) removePeer(p Peer){
-	delete(n.peers,string(p.Id))
+func (n *Node) removePeer(p *Peer){
+	delete(n.peers,p.IdString())
 	n.leavingPeers.Add(p)
 }
 
 func (n *Node) removePeerAddress(d interface{}){
-	p := d.(Peer)
+	p := d.(LeavingPeerAddress)
 	n.Lock()
 	defer  n.Unlock()
-	var j int = -1
-	peer := n.peers[string(p.Id)]
-	for i, a := range peer.Addresses {
-		if a.Implementation == p.Addresses[0].Implementation {
-			j = i
-			break
-		}
-	}
-	if j != -1 {
-		if len(peer.Addresses)==1 {
-			n.removePeer(peer)
-		} else {
-			peer.Addresses[j] = peer.Addresses[len(peer.Addresses)-1]
-			peer.Addresses= peer.Addresses[:len(peer.Addresses)-2]
-		}
-		if len(peer.Addresses)==0 {
-			n.removePeer(peer)
-		}
+
+	peer, f := n.peers[string(p.id)]
+	if !f {return}
+	peer.RemoveAddress(p.address)
+	if len(peer.Addresses())==0 {
+		n.removePeer(peer)
 	}
 }
 
 func (n Node) KnownPeer(d interface{}) (is bool) {
-	p := d.(Peer)
+
+	var id string
+	if p, f := d.(Peer); f {
+		id = p.IdString()
+	} else if p, f := d.(*Peer); f {
+		id = p.IdString()
+	}
 	n.RLock()
 	defer n.RUnlock()
-	_, is = n.peers[string(p.Id)]
+	_, is = n.peers[id]
 	return
 }
 func (n Node) newPeerAddress(d interface{}) {
-	p := d.(Peer)
+	p := d.(NewPeerAddress)
 	n.Lock()
 	defer n.Unlock()
 	kp := n.peers[string(p.Id)]
-	kp.Addresses = append(n.peers[string(p.Id)].Addresses,p.Addresses[0])
-	n.peers[string(p.Id)] = kp
+
+	kp.AddAddress(p.Adress)
 	return
-}
-func (n Node) peerConnectionInitialized(p Peer) bool {
-	return n.getPeer(p).Connected != nil
 }
 
 func (n Node) knownPeerAddress(d interface{}) (is bool) {
 	p := d.(Peer)
 	n.RLock()
 	defer n.RUnlock()
-	for _, a := range n.getPeer(p).Addresses {
+	func(d interface{}) interface{} {
+		snd++
+		log.Println("Sndpeer",snd)
+
+		d.(stream2go.StreamController).Add(m)
+		return nil
+	}
+	for _, a := range n.GetPeer(p).Addresses {
 		if a.Implementation == p.Addresses[0].Implementation {
 			return true
 		}
 	}
 	return
 }
-func (n Node) getPeer(d interface{}) (p Peer) {
-	p = d.(Peer)
+func (n Node) GetPeer(d interface{}) ( *Peer) {
+	p := d.(Peer)
 	return n.peers[string(p.Id)]
 }
 
-func (n *Node) OpenConnection(target Peer) *future2go.Future {
-	if n.peerConnectionInitialized(target) {
-		return n.getPeer(target).Connected
+func (n *Node) OpenConnection(target *Peer) *future2go.Future {
+	if target.Connected != nil {
+		return target.Connected
 	}
 	n.Lock()
 	defer n.Unlock()
-	kp := n.peers[string(target.Id)]
-	kp.Connected = future2go.New()
-	n.peers[string(target.Id)] = kp
-	m := NewHelloMessage(n.Self)
+	target.Connected = future2go.New()
+	m := n.encodeMsg(HelloMessage{})
 	for _, i:= range n.implementations {
-		if is, add := i.Responsible(target); is {
-			out, _ := i.Connect(n.Self,add)
+		if is, add := i.Responsible(*target); is {
+			out, err := i.Connect(*n.Self,add)
 			out.Add(m)
+			if err != nil {
+				log.Println("ERROR OPEN1 CHAN", out)
+				defer n.OpenConnection(target)
+				return nil
+			}
 			time.Sleep(10*time.Millisecond)
 			out.Close()
-			return kp.Connected
+			return target.Connected
 		}
 	}
-	f := kp.Connected
-	kp.Connected = nil
+	f := target.Connected
+	target.Connected = nil
 	f.CompleteError(errors.New("NO_IMP"))
 	return f
 }
@@ -204,7 +215,23 @@ func (n *Node) NewPeers() stream2go.Stream {
 	return n.newPeers.Stream
 
 }
+func (n *Node) encodeMsg(d interface {}) interface {} {
 
+	m := d.(ProtocolMessage)
+	var msg Message
+	msg.Sender = *n.Self
+	msg.Protocol = m.ProtocolId()
+	msg.Type= m.Type()
+	msg.Payloads = []Payload{}
+	for _, d := range m.Data() {
+		if b, ok := d.([]byte); ok {
+			msg.Payloads = append(msg.Payloads,Payload{BIN, bytes.NewBuffer(b)})
+		} else {
+			msg.Payloads = append(msg.Payloads,Payload{JSON, encode(d)})
+		}
+	}
+	return msg
+}
 func (n Node) LeavingPeers() stream2go.Stream {
 	return n.leavingPeers.Stream
 }
@@ -214,13 +241,32 @@ func (n *Node) RegisterImplementation(i Implementation) {
 	n.implementations = append(n.implementations,i)
 }
 
-func generateUuid() []byte {
+func (n *Node) RegisterProtocol(p Protocol) (in stream2go.Stream){
+	return n.in.Where(isProtocol(p.ProtocolId()))
+}
+
+func isProtocol(id uint8) stream2go.Filter {
+	return func(d interface {}) bool {
+		m, ok := ToMessage(d)
+		if !ok {
+			return ok
+		}
+		return m.Protocol == id
+	}
+}
+
+
+func generateUuid() (id []byte) {
 	Uuid, err := uuid.NewV4()
 	if err != nil {
 		log.Fatal("Failed to generate UUID")
 		return []byte{}
 	}
-	return Uuid[0:16]
+	id = Uuid[0:16]
+	if bytes.Equal(id[:1],[]byte{0}) {
+		id = generateUuid()
+	}
+	return
 }
 
 func testlistener() stream2go.Suscriber {

@@ -30,7 +30,7 @@ func TestNodeDiscover(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Error("Beaon didnt stop")
 	case data := <-c1:
-		if string(data.(aurarath.Peer).Id) != string(node2.Self.Id) {
+		if string(data.(*aurarath.Peer).Id) != string(node2.Self.Id) {
 			t.Error("wrong id", data)
 		}
 		if !node1.KnownPeer(data) {
@@ -44,7 +44,7 @@ func TestNodeDiscover(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Error("Beaon didnt stop")
 	case data := <-c2:
-		if string(data.(aurarath.Peer).Id) != string(node1.Self.Id)  {
+		if string(data.(*aurarath.Peer).Id) != string(node1.Self.Id)  {
 			t.Error("wrong id", data)
 		}
 		if !node2.KnownPeer(data) {
@@ -79,7 +79,7 @@ func TestNodeTimeOut(t *testing.T) {
 	case <-time.After(10 * time.Second):
 		t.Error("Beaon didnt stop")
 	case data := <-c1:
-		if string(data.(aurarath.Peer).Id) != string(node2.Self.Id) {
+		if string(data.(*aurarath.Peer).Id) != string(node2.Self.Id) {
 			t.Error("wrong id", data)
 		}
 		if node1.KnownPeer(data) {
@@ -115,7 +115,7 @@ func TestNodeConnection(t *testing.T) {
 		t.Error("Peer wasnt found")
 
 	case data := <-c1:
-		p :=data.(aurarath.Peer)
+		p :=data.(*aurarath.Peer)
 
 		f := node1.OpenConnection(p)
 		c2 := make(chan interface{})

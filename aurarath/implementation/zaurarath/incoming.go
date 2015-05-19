@@ -22,7 +22,7 @@ func NewIncoming() (i Incoming, err error) {
 }
 func (i *Incoming) setupSocket() (err error) {
 	i.port = getRandomPort()
-	i.skt, err = zmq4.NewSocket(zmq4.ROUTER)
+	i.skt, err = ctx.NewSocket(zmq4.ROUTER)
 	if err != nil {
 		return
 	}

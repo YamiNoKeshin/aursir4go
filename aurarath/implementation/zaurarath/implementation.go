@@ -7,8 +7,11 @@ import (
 	"github.com/joernweissenborn/stream2go"
 	"log"
 	"net"
+	"github.com/pebbe/zmq4"
 )
-
+var (
+	ctx *zmq4.Context
+)
 type Implementation struct {
 	np      stream2go.Stream
 	in      stream2go.Stream
@@ -18,6 +21,13 @@ type Implementation struct {
 	port    uint16
 }
 
+func init() {
+	var err error
+	ctx, err = zmq4.NewContext()
+	if err !=nil {
+		panic(err)
+	}
+}
 func New(uuid []byte) (i Implementation) {
 
 	i.Init(uuid)
@@ -76,6 +86,13 @@ func (i Implementation) Connect(home aurarath.Peer, target aurarath.Address) (s 
 		return
 	}
 	s = stream2go.New()
+	s.Closed.Then(func(s stream2go.Stream) func(interface {})interface {}{
+		return func(interface {})interface {}{
+			s.Close()
+			return nil
+		}
+	}(outstream.Stream))
+
 	outstream.Join(s.Transform(OutgoingToMessage))
 	return
 }

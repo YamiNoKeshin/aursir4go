@@ -20,23 +20,17 @@ type HelloMessage struct {
 	Codecs []uint8
 }
 
-func NewHelloMessage(Home Peer) Message{
+func (HelloMessage) ProtocolId() uint8 {return PROTOCOL_CONSTANT}
+func (HelloMessage) Type() uint8 {return TYPE_HELLO}
+func (HelloMessage) Data() []interface{}{
 	cs := []byte{}
 	for _, c := range CODECS {
 		cs = append(cs,byte(c))
 	}
-	p := Payload{BIN,bytes.NewBuffer(cs)}
-	return NewMessage(Home,PROTOCOL_CONSTANT,TYPE_HELLO,[]Payload{p})
+	return []interface {}{cs}
 }
 
-func isAurArath(d interface {}) bool {
-	m, ok := ToMessage(d)
-	if !ok {
-		return ok
-	}
-	return m.Protocol == PROTOCOL_CONSTANT
 
-}
 func isHello(d interface {}) bool {
 	m, ok := ToMessage(d)
 	if !ok {
@@ -51,9 +45,12 @@ func toHello(d interface {}) HelloMessage {
 	var hm HelloMessage
 	hm.Sender = m.Sender
 	hm.Codecs = []uint8{}
-	for _, b:= range m.Payloads[0].Bytes.Bytes() {
+	data := new(bytes.Buffer)
+	m.PopBytes(data)
+	for _, b:= range data.Bytes(){
 		hm.Codecs = append(hm.Codecs,uint8(b))
 	}
+
 	return hm
 
 }

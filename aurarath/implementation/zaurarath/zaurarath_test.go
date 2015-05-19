@@ -142,6 +142,13 @@ func TestPeerConnection(t *testing.T) {
 
 	log.Println(m1)
 	log.Println(m2)
+
+	out2.Add(aurarath.NewMessage(home2, 5, 6, []aurarath.Payload{aurarath.Payload{8, d2}}))
+	(<-c3)
+	out1.Add(aurarath.NewMessage(home1, 3, 4, []aurarath.Payload{aurarath.Payload{7, d1}}))
+	(<-c4)
+
+
 }
 
 func testlistener(c chan interface{}) stream2go.Suscriber {

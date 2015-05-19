@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"net"
+	"log"
 )
 
 // Message
@@ -70,6 +71,10 @@ func ToIncomingMessage(d interface{}) interface{} {
 	var msg aurarath.Message
 	var peer aurarath.Peer
 	peer.Id = data[0]
+	if len(peer.Id) != 16 {
+		log.Println("IDSHORT")
+		log.Println(peer.Id)
+	}
 	var address aurarath.Address
 	address.Implementation = IMPLEMENTATION_STRING
 	var details Details

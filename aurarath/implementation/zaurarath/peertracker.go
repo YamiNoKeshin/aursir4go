@@ -38,7 +38,11 @@ func (pt *PeerTracker) isKnownAddr(d interface{}) (is bool, add aurarath.Address
 
 	p, is := pt.trackedPeers[string(peer.Id)]
 	if is {
+		if len(p.Addresses) != 0 {
 		add = p.Peer.Addresses[0]
+		} else {
+			is = false
+		}
 	}
 	return
 }
