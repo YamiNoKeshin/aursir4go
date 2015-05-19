@@ -2,6 +2,7 @@ package zaurarath
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/joernweissenborn/aursir4go/aurarath"
 	"github.com/joernweissenborn/stream2go"
@@ -27,8 +28,8 @@ func NewOutgoing(home aurarath.Peer, target aurarath.Address) (out stream2go.Str
 	}
 	o.target = target
 
-
-	o.skt.SetIdentity(string(home.Id[:16]))
+	id = hex.EncodeToString(home.Id[:16])
+	o.skt.SetIdentity(id)
 
 	targetdetails := target.Details.(Details)
 	Ip := net.IPv4(uint8(targetdetails.Ip[0]), uint8(targetdetails.Ip[1]), uint8(targetdetails.Ip[2]), uint8(targetdetails.Ip[3]))
